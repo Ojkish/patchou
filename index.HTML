@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>DMX Patcher & Résultats</title>
+  <style>
+    /* Exemple de styles communs pour les deux parties */
+    :root {
+      --primary-color: #4d53ce;
+      --secondary-color: #dc3545;
+      --tertiary-color: #7c578b;
+      --background-color: #f4f4f4;
+      --container-bg: rgb(160, 157, 157);
+      --text-color: #333;
+      --border-color: #ddd;
+    }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      margin: 20px;
+      background-color: var(--background-color);
+      line-height: 1.6;
+    }
+    .main-container {
+      max-width: 500px;
+      margin: 0 auto 20px;
+      padding: 20px;
+      background-color: var(--container-bg);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+    }
+    h1 {
+      text-align: center;
+      color: var(--text-color);
+      margin-bottom: 30px;
+      font-size: 2em;
+    }
+    /* Styles du formulaire de patch */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: var(--text-color);
+    }
+    .number-input-container {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    input, button {
+      font-size: 1rem;
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+    }
+    input {
+      width: 100%;
+      box-sizing: border-box;
+    }
+    input[type="number"] {
+      text-align: center;
+    }
+    .number-control {
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      font-size: 1.5rem;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .number-control:hover {
+      opacity: 0.9;
+    }
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 30px;
+    }
+    .action-button {
+      padding: 15px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .action-button.primary {
+      background-color: var(--secondary-color);
+      color: white;
+    }
+    .action-button.secondary {
+      background-color: var(--tertiary-color);
+      color: white;
+    }
+    .action-button:hover {
+      opacity: 0.9;
+    }
+    /* Style de la zone de résultats générés par le patch */
+    #output {
+      margin-top: 20px;
+    }
+    .result-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: white;
+      padding: 10px;
+      margin-bottom: 5px;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .address-start {
+      color: var(--primary-color);
+      font-weight: bold;
+    }
+    .address-end {
+      color: var(--text-color);
+    }
+    /* Styles de la table des résultats */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table th, table td {
+      border: 1px solid var(--border-color);
+      padding: 8px;
+      text-align: left;
+    }
+    table th {
+      background-color: #f0f0f0;
+      cursor: pointer;
+    }
+    .export-buttons {
+      margin-top: 20px;
+      text-align: center;
+    }
+    /* Classe utilitaire pour masquer une section */
+    .hidden {
+      display: none;
+    }
+    /* Style de la barre de navigation */
+    nav {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    nav button {
+      margin: 0 5px;
+      padding: 10px 15px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <!-- Barre de navigation pour passer de la vue Patch / Résultats -->
+  <nav>
+    <button id="show-patch">Patch DMX</button>
+    <button id="show-results">Voir Résultats</button>
+  </nav>
+
+  <!-- Section PATCH -->
+  <section id="patch-section">
+    <div class="main-container">
+      <h1>PATCHAPAPA</h1>
+      <form id="patchForm" onsubmit="return false;">
+        <!-- Nom du projecteur -->
+        <div class="form-group">
+          <label for="projectorName">Nom du projecteur :</label>
+          <input type="text" id="projectorName" placeholder="Ex: PARLED" autocomplete="off">
+        </div>
+        <!-- Nombre de projecteurs -->
+        <div class="form-group">
+          <label for="projectorCount">Nombre de projecteurs :</label>
+          <div class="number-input-container">
+            <button class="number-control" tabindex="-1" data-action="decrement" data-target="projectorCount">-</button>
+            <input type="number" id="projectorCount" value="1" min="1" max="512">
+            <button class="number-control" tabindex="-1" data-action="increment" data-target="projectorCount">+</button>
+          </div>
+        </div>
+        <!-- Nombre de canaux -->
+        <div class="form-group">
+          <label for="channelCount">Nombre de canaux par projecteur :</label>
+          <div class="number-input-container">
+            <button class="number-control" tabindex="-1" data-action="decrement" data-target="channelCount">-</button>
+            <input type="number" id="channelCount" value="1" min="1" max="512">
+            <button class="number-control" tabindex="-1" data-action="increment" data-target="channelCount">+</button>
+          </div>
+        </div>
+        <!-- Univers de départ -->
+        <div class="form-group">
+          <label for="universe">Univers de départ :</label>
+          <div class="number-input-container">
+            <button class="number-control" tabindex="-1" data-action="decrement" data-target="universe">-</button>
+            <input type="number" id="universe" value="1" min="1">
+            <button class="number-control" tabindex="-1" data-action="increment" data-target="universe">+</button>
+          </div>
+        </div>
+        <!-- Adresse de départ -->
+        <div class="form-group">
+          <label for="address">Adresse de départ :</label>
+          <div class="number-input-container">
+            <button class="number-control" tabindex="-1" data-action="decrement" data-target="address">-</button>
+            <input type="number" id="address" value="1" min="1" max="512">
+            <button class="number-control" tabindex="-1" data-action="increment" data-target="address">+</button>
+          </div>
+        </div>
+        <!-- Boutons d'action -->
+        <div class="action-buttons">
+          <button type="button" id="patchButton" class="action-button primary">Patch</button>
+          <!-- Vous pouvez aussi ajouter un bouton pour accéder directement aux résultats -->
+          <button type="button" id="resultsButton" class="action-button secondary">Résultats</button>
+        </div>
+      </form>
+      <!-- Zone où s'affichent les résultats du patch -->
+      <div id="output"></div>
+    </div>
+  </section>
+
+  <!-- Section RÉSULTATS -->
+  <section id="results-section" class="hidden">
+    <div class="main-container">
+      <h1>Résultats du Patch DMX</h1>
+      <div class="filter-container">
+        <input type="text" id="name-filter" placeholder="Filtrer par nom">
+        <select id="universe-filter">
+          <option value="">Tous les univers</option>
+        </select>
+      </div>
+      <table id="results-table">
+        <thead>
+          <tr>
+            <th data-sort="name">Nom</th>
+            <th data-sort="universe">Univers</th>
+            <th data-sort="startAddress">Adresse Début</th>
+            <th data-sort="endAddress">Adresse Fin</th>
+            <th data-sort="channels">Canaux</th>
+          </tr>
+        </thead>
+        <tbody id="results-body">
+          <!-- Les résultats seront insérés ici dynamiquement -->
+        </tbody>
+      </table>
+      <div class="export-buttons">
+        <button id="export-csv">Exporter CSV</button>
+        <button id="send-email">Envoyer par Email</button>
+      </div>
+    </div>
+  </section>
+
+  <script>
+/***********************
+ * Génère un e-mail avec un formatage optimisé pour tous les clients mail
+ * et systèmes d'exploitation, en utilisant des techniques d'affichage universelles
+ ***********************/
+ function generatePlainTextEmail(patchResults) {
+  // Configuration pour un affichage universel
+  const UNIVERSAL_CHARS = {
+    // Utilisation de caractères ASCII basiques pour une compatibilité maximale
+    horizontalLine: '-',
+    doubleLine: '=',
+    bullet: '*',
+    space: ' '
+  };
+
+  // Configuration des espacements
+  const SPACING = {
+    indent: 2,        // Espacement pour les indentations
+    columnGap: 3,     // Espacement entre les colonnes
+    sectionGap: 2     // Lignes vides entre les sections
+  };
+
+  // Fonction pour créer des bordures compatibles
+  function createBorder(char, length) {
+    return char.repeat(length);
+  }
+
+  // Fonction pour créer des espacements cohérents
+  function createIndent(level = 1) {
+    return UNIVERSAL_CHARS.space.repeat(SPACING.indent * level);
+  }
+
+  // Fonction améliorée pour l'alignement du texte
+  function alignText(text, width, align = 'left') {
+    const padding = width - text.length;
+    switch(align) {
+      case 'right':
+        return UNIVERSAL_CHARS.space.repeat(padding) + text;
+      case 'center':
+        const leftPad = Math.floor(padding / 2);
+        return UNIVERSAL_CHARS.space.repeat(leftPad) + text + 
+               UNIVERSAL_CHARS.space.repeat(padding - leftPad);
+      default:
+        return text + UNIVERSAL_CHARS.space.repeat(padding);
+    }
+  }
+
+  // Calcul dynamique des largeurs optimales
+  const calcOptimalWidth = (items, getter, minWidth = 0) => {
+    return Math.max(minWidth, ...items.map(getter).map(item => String(item).length));
+  };
+
+  // Définition des largeurs de colonnes
+  const colWidths = {
+    name: calcOptimalWidth(patchResults, item => item.name, 15),
+    startAddress: 8,    // Format: "u.aaa"
+    endAddress: 7,      // Format: "(-aaa)"
+    channels: 7         // Format: "(xxCh)"
+  };
+
+  // Calcul de la largeur totale avec marges
+  const totalWidth = Object.values(colWidths).reduce((sum, w) => sum + w, 0) + 
+                    (Object.keys(colWidths).length - 1) * SPACING.columnGap;
+
+  // Formatage des données avec des zéros non-significatifs
+  function formatNumber(num, width) {
+    return String(num).padStart(width, '0');
+  }
+
+  // Génération de l'en-tête
+  let output = [];
+  const now = new Date();
+  
+  // En-tête avec style monospace préservé
+  output = [
+    createBorder(UNIVERSAL_CHARS.doubleLine, totalWidth),
+    alignText('PATCH DMX - RÉCAPITULATIF', totalWidth, 'center'),
+    alignText(now.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }) + ' - ' + now.toLocaleTimeString('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit'
+    }), totalWidth, 'center'),
+    createBorder(UNIVERSAL_CHARS.doubleLine, totalWidth),
+    ''
+  ];
+
+  // En-têtes des colonnes
+  const headers = [
+    alignText('PROJECTEUR', colWidths.name),
+    alignText('DÉBUT', colWidths.startAddress),
+    alignText('FIN', colWidths.endAddress),
+    alignText('CANAUX', colWidths.channels)
+  ].join(UNIVERSAL_CHARS.space.repeat(SPACING.columnGap));
+
+  output.push(headers);
+  output.push(createBorder(UNIVERSAL_CHARS.horizontalLine, totalWidth));
+
+  // Tri et formatage des résultats
+  const sortedResults = [...patchResults].sort((a, b) => {
+    return a.universe === b.universe ? 
+           a.startAddress - b.startAddress : 
+           a.universe - b.universe;
+  });
+
+  // Génération des lignes avec séparation par univers
+  let currentUniverse = null;
+
+  sortedResults.forEach(result => {
+    if (currentUniverse !== result.universe && currentUniverse !== null) {
+      output.push(createBorder(UNIVERSAL_CHARS.horizontalLine, totalWidth));
+    }
+    currentUniverse = result.universe;
+
+    const formattedLine = [
+      alignText(result.name, colWidths.name),
+      alignText(`${result.universe}.${formatNumber(result.startAddress, 3)}`, colWidths.startAddress),
+      alignText(`(-${formatNumber(result.endAddress, 3)})`, colWidths.endAddress),
+      alignText(`(${result.channels}Ch)`, colWidths.channels)
+    ].join(UNIVERSAL_CHARS.space.repeat(SPACING.columnGap));
+
+    output.push(formattedLine);
+  });
+
+  // Statistiques et récapitulatif
+  const stats = {
+    total: sortedResults.length,
+    channels: sortedResults.reduce((sum, r) => sum + r.channels, 0),
+    universes: new Set(sortedResults.map(r => r.universe)).size
+  };
+
+  // Section récapitulative avec style préservé
+  output.push(
+    '',
+    createBorder(UNIVERSAL_CHARS.doubleLine, totalWidth),
+    alignText('RÉCAPITULATIF', totalWidth, 'center'),
+    createBorder(UNIVERSAL_CHARS.horizontalLine, totalWidth),
+    alignText(`${UNIVERSAL_CHARS.bullet} Total projecteurs : ${stats.total}`, totalWidth),
+    alignText(`${UNIVERSAL_CHARS.bullet} Total canaux : ${stats.channels}`, totalWidth),
+    alignText(`${UNIVERSAL_CHARS.bullet} Univers utilisés : ${stats.universes}`, totalWidth),
+    createBorder(UNIVERSAL_CHARS.doubleLine, totalWidth)
+  );
+
+  return output.join('\n');
+}
+  
+    /***********************
+     * Classe DMXPatcher : gestion de la création du patch
+     ***********************/
+    class DMXPatcher {
+      constructor() {
+        this.occupiedChannels = new Map();  // Stockage des canaux occupés par univers
+        this.projectorCounters = {};          // Compteur pour chaque projecteur
+        this.initializeDOMReferences();
+        this.setupEventListeners();
+        this.updateStartAddress();
+      }
+  
+      getValidInt(id) {
+        const value = parseInt(document.getElementById(id).value, 10);
+        return isNaN(value) ? null : value;
+      }
+  
+      initializeDOMReferences() {
+        this.form = document.getElementById('patchForm');
+        this.projectorNameInput = document.getElementById('projectorName');
+        this.projectorCountInput = document.getElementById('projectorCount');
+        this.channelCountInput = document.getElementById('channelCount');
+        this.universeInput = document.getElementById('universe');
+        this.addressInput = document.getElementById('address');
+        this.patchButton = document.getElementById('patchButton');
+        this.resultsButton = document.getElementById('resultsButton');
+        this.outputContainer = document.getElementById('output');
+      }
+  
+      setupEventListeners() {
+        // Gestion des boutons "+" et "-"
+        document.querySelectorAll('.number-control').forEach(button => {
+          button.addEventListener('click', (e) => this.handleNumberControl(e));
+        });
+  
+        // Sélection automatique du contenu des inputs lors du focus
+        this.form.querySelectorAll('input').forEach(input => {
+          input.addEventListener('focus', (e) => e.target.select());
+        });
+  
+        // Mise à jour de l'adresse de départ lors du changement d'univers
+        this.universeInput.addEventListener('change', () => this.updateStartAddress());
+  
+        // Bouton "Patch" : déclenche la création du patch
+        this.patchButton.addEventListener('click', () => this.patchProjectors());
+  
+        // Bouton "Résultats" : bascule vers la vue des résultats et recrée l'instance correspondante
+        this.resultsButton.addEventListener('click', () => {
+          document.getElementById('patch-section').classList.add('hidden');
+          document.getElementById('results-section').classList.remove('hidden');
+          new DMXPatchResults();
+        });
+  
+        // Prévention de la soumission du formulaire
+        this.form.addEventListener('submit', (e) => e.preventDefault());
+      }
+  
+      handleNumberControl(event) {
+        const button = event.target;
+        const action = button.dataset.action;
+        const targetId = button.dataset.target;
+        const input = document.getElementById(targetId);
+        let value = parseInt(input.value) || 0;
+        value = action === 'increment' ? value + 1 : Math.max(1, value - 1);
+        input.value = value;
+        if (targetId === 'universe') {
+          this.updateStartAddress();
+        }
+      }
+  
+      updateStartAddress() {
+        const universe = parseInt(this.universeInput.value) || 1;
+        const firstFreeAddress = this.findFirstFreeAddress(universe);
+        this.addressInput.value = firstFreeAddress;
+      }
+  
+      findFirstFreeAddress(universe) {
+        const occupiedInUniverse = this.occupiedChannels.get(universe) || new Set();
+        for (let addr = 1; addr <= 512; addr++) {
+          if (!occupiedInUniverse.has(addr)) {
+            return addr;
+          }
+        }
+        return 1;
+      }
+  
+      areChannelsAvailable(universe, startAddress, channelCount) {
+        const occupiedInUniverse = this.occupiedChannels.get(universe) || new Set();
+        for (let i = 0; i < channelCount; i++) {
+          if (occupiedInUniverse.has(startAddress + i)) {
+            return false;
+          }
+        }
+        return true;
+      }
+  
+      markChannelsAsOccupied(universe, startAddress, channelCount) {
+        if (!this.occupiedChannels.has(universe)) {
+          this.occupiedChannels.set(universe, new Set());
+        }
+        const occupiedInUniverse = this.occupiedChannels.get(universe);
+        for (let i = 0; i < channelCount; i++) {
+          occupiedInUniverse.add(startAddress + i);
+        }
+      }
+  
+      patchProjectors() {
+        const projName = (document.getElementById('projectorName').value.trim() || "Projo").toUpperCase();
+        const projCount = this.getValidInt('projectorCount');
+        const chanCount = this.getValidInt('channelCount');
+        let universe = this.getValidInt('universe');
+        let address = this.getValidInt('address');
+  
+        if (!projCount || !chanCount || !universe || !address) return;
+  
+        if (!this.projectorCounters[projName]) {
+          this.projectorCounters[projName] = 0;
+        }
+  
+        const output = document.getElementById('output');
+        let existingHtml = output.innerHTML;
+  
+        for (let i = 0; i < projCount; i++) {
+          this.projectorCounters[projName]++;
+          const projNumber = this.projectorCounters[projName];
+          let endAddress = address + chanCount - 1;
+  
+          if (endAddress > 512) {
+            universe++;
+            address = 1;
+            endAddress = address + chanCount - 1;
+          }
+  
+          if (!this.areChannelsAvailable(universe, address, chanCount)) {
+            alert(`Impossible de patcher ${projName} ${projNumber}. Canaux occupés.`);
+            break;
+          }
+  
+          this.markChannelsAsOccupied(universe, address, chanCount);
+  
+          existingHtml += `
+            <div class="result-item">
+              <span><strong>${projName}&nbsp;&nbsp;&nbsp;${projNumber}</strong></span>
+              <span class="address-start">${universe}.${address}</span>
+              <span class="address-end">${universe}.${endAddress}</span>
+              <span>${chanCount}CH</span>
+            </div>
+          `;
+  
+          address += chanCount;
+        }
+  
+        output.innerHTML = existingHtml;
+        this.savePatchResults(existingHtml);
+  
+        // Mise à jour des valeurs des inputs
+        document.getElementById('universe').value = universe;
+        document.getElementById('address').value = address;
+      }
+  
+      savePatchResults(resultsHtml) {
+        try {
+          if (resultsHtml && resultsHtml.trim()) {
+            localStorage.setItem("dmx_patch_results", resultsHtml);
+            return true;
+          }
+          return false;
+        } catch (e) {
+          alert(`Erreur lors de la sauvegarde : ${e}`);
+          return false;
+        }
+      }
+    }
+  
+    /***********************
+     * Classe DMXPatchResults : affichage des résultats, filtrage, tri, export et envoi d'e-mail
+     ***********************/
+    class DMXPatchResults {
+      constructor() {
+        this.patchResults = [];
+        this.currentSort = { column: null, direction: 'asc' };
+        this.initializeElements();
+        this.bindEvents();
+        this.loadResults();
+      }
+  
+      initializeElements() {
+        this.resultsBody = document.getElementById('results-body');
+        this.nameFilter = document.getElementById('name-filter');
+        this.universeFilter = document.getElementById('universe-filter');
+        this.exportCsvButton = document.getElementById('export-csv');
+        this.sendEmailButton = document.getElementById('send-email');
+      }
+  
+      bindEvents() {
+        document.querySelectorAll('#results-table th').forEach(th => {
+          th.addEventListener('click', (e) => this.sortTable(e));
+        });
+        this.nameFilter.addEventListener('input', () => this.filterResults());
+        this.universeFilter.addEventListener('change', () => this.filterResults());
+        this.exportCsvButton.addEventListener('click', () => this.exportToCsv());
+        this.sendEmailButton.addEventListener('click', () => this.sendEmail());
+      }
+  
+      loadResults() {
+        const storedResults = localStorage.getItem('dmx_patch_results');
+        if (storedResults) {
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = storedResults;
+          this.patchResults = Array.from(tempDiv.querySelectorAll('.result-item')).map(item => {
+            const [name] = item.querySelector('span:first-child').textContent.match(/[^0-9]+/);
+            const number = parseInt(item.querySelector('span:first-child').textContent.match(/\d+/)[0]);
+            const [universe, startAddr] = item.querySelector('.address-start').textContent.split('.').map(Number);
+            const [, endAddr] = item.querySelector('.address-end').textContent.split('.').map(Number);
+            const channels = parseInt(item.querySelector('span:last-child').textContent);
+            return {
+              name: name.trim() + ' ' + number,
+              universe,
+              startAddress: startAddr,
+              endAddress: endAddr,
+              channels
+            };
+          });
+  
+          // Remplissage du filtre d'univers
+          const universes = [...new Set(this.patchResults.map(result => result.universe))].sort((a, b) => a - b);
+          universes.forEach(universe => {
+            const option = document.createElement('option');
+            option.value = universe;
+            option.textContent = universe;
+            this.universeFilter.appendChild(option);
+          });
+  
+          this.renderResults();
+        }
+      }
+  
+      renderResults(filteredResults = null) {
+        const results = filteredResults || this.patchResults;
+        this.resultsBody.innerHTML = '';
+        results.forEach(result => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${result.name.toUpperCase()}</td>
+            <td>${result.universe}</td>
+            <td class="start-address">${result.startAddress}</td>
+            <td>${result.endAddress}</td>
+            <td>${result.channels}</td>
+          `;
+          this.resultsBody.appendChild(row);
+        });
+      }
+  
+      naturalSort(a, b) {
+        // Expression régulière pour extraire le texte et le numéro à la fin du nom
+        const regex = /^(.*?)(\d+)?$/;
+        const matchA = a.name.trim().toLowerCase().match(regex);
+        const matchB = b.name.trim().toLowerCase().match(regex);
+  
+        // Extraction et nettoyage de la partie textuelle
+        const textA = matchA[1].trim();
+        const textB = matchB[1].trim();
+
+         // Si le texte est identique, comparer les nombres (ou 0 s'il n'y en a pas)
+         if (textA === textB) {
+          const numA = matchA[2] ? parseInt(matchA[2], 10) : 0;
+          const numB = matchB[2] ? parseInt(matchB[2], 10) : 0;
+          return numA - numB;
+        }
+  
+        // Sinon, trier sur la partie alphabétique
+        return textA.localeCompare(textB);
+      }
+
+  
+      sortTable(event) {
+        const column = event.target.dataset.sort;
+        const direction = this.currentSort.column === column && this.currentSort.direction === 'asc' ? 'desc' : 'asc';
+        document.querySelectorAll('#results-table th').forEach(th => {
+          th.classList.remove('sorted-asc', 'sorted-desc');
+        });
+        event.target.classList.add(`sorted-${direction}`);
+        this.patchResults.sort((a, b) => {
+          if (column === 'name') {
+            return direction === 'asc' ? this.naturalSort(a, b) : this.naturalSort(b, a);
+          }
+          const aValue = a[column];
+          const bValue = b[column];
+          return direction === 'asc' ? aValue - bValue : bValue - aValue;
+        });
+        this.currentSort = { column, direction };
+        this.renderResults();
+      }
+  
+      filterResults() {
+        const nameFilter = this.nameFilter.value.toLowerCase();
+        const universeFilter = this.universeFilter.value;
+        const filteredResults = this.patchResults.filter(result => {
+          const nameMatch = result.name.toLowerCase().includes(nameFilter);
+          const universeMatch = !universeFilter || result.universe === parseInt(universeFilter);
+          return nameMatch && universeMatch;
+        });
+        this.renderResults(filteredResults);
+      }
+  
+      exportToCsv() {
+        const csvContent = [
+          ['Nom', 'Univers', 'Adresse Début', 'Adresse Fin', 'Canaux'],
+          ...this.patchResults.map(result => [
+            result.name,
+            result.universe,
+            result.startAddress,
+            result.endAddress,
+            result.channels
+          ])
+        ].map(row => row.join(',')).join('\n');
+  
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'patch_results.csv';
+        link.click();
+      }
+  
+      sendEmail() {
+        // Utilisation de la fonction generatePlainTextEmail pour créer le corps du mail
+        const body = generatePlainTextEmail(this.patchResults);
+        const subject = "Résultats du Patch DMX";
+        const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        window.location.href = mailtoLink;
+      }
+    }
+  
+    /***********************
+     * Navigation entre les sections "Patch" et "Résultats"
+     ***********************/
+    document.getElementById('show-patch').addEventListener('click', () => {
+      document.getElementById('patch-section').classList.remove('hidden');
+      document.getElementById('results-section').classList.add('hidden');
+    });
+    document.getElementById('show-results').addEventListener('click', () => {
+      document.getElementById('patch-section').classList.add('hidden');
+      document.getElementById('results-section').classList.remove('hidden');
+      // Création d'une nouvelle instance pour rafraîchir l'affichage des résultats
+      new DMXPatchResults();
+    });
+  
+    // Initialisation du patcher au chargement de la page
+    window.addEventListener('load', () => {
+      new DMXPatcher();
+    });
+  </script>
+  
+</body>
+</html>
