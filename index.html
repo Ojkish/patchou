@@ -5,183 +5,58 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>DMX Patcher & Résultats</title>
   <style>
-    /* Exemple de styles communs pour les deux parties */
-    :root {
-      --primary-color: #4d53ce;
-      --secondary-color: #dc3545;
-      --tertiary-color: #7c578b;
-      --background-color: #f4f4f4;
-      --container-bg: rgb(187, 183, 183);
-      --text-color: #333;
-      --border-color: #ddd;
-    }
-    body {
-      font-family: system-ui, -apple-system, sans-serif;
-      margin: 20px;
-      background-color: var(--background-color);
-      line-height: 1.6;
-    }
-    .main-container {
-      max-width: 500px;
-      margin: 0 auto 20px;
-      padding: 20px;
-      background-color: var(--container-bg);
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      border-radius: 8px;
-    }
-    h1 {
-      text-align: center;
-      color: var(--text-color);
-      margin-bottom: 30px;
-      font-size: 2em;
-    }
-    /* Styles du formulaire de patch */
-    .form-group {
-      margin-bottom: 20px;
-    }
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: 500;
-      color: var(--text-color);
-    }
-    .number-input-container {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    input, button {
-      font-size: 1rem;
-      padding: 10px;
-      border-radius: 4px;
-      border: 1px solid var(--border-color);
-    }
-    input {
-      width: 100%;
-      box-sizing: border-box;
-    }
-    input[type="number"] {
-      text-align: center;
-    }
-    .number-control {
-      width: 40px;
-      height: 40px;
-      padding: 0;
-      font-size: 1.5rem;
-      background-color: var(--primary-color);
-      color: white;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .number-control:hover {
-      opacity: 0.9;
-    }
-    .action-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 30px;
-    }
-    .action-button {
-      padding: 15px;
-      font-size: 1.1rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      border: none;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
-    .action-button.primary {
-      background-color: var(--secondary-color);
-      color: white;
-    }
-    .action-button.secondary {
-      background-color: var(--tertiary-color);
-      color: white;
-    }
-    .action-button:hover {
-      opacity: 0.9;
-    }
-    /* Style de la zone de résultats générés par le patch */
-    #output {
-      margin-top: 20px;
-    }
-    .result-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: white;
-      padding: 10px;
-      margin-bottom: 5px;
-      border-radius: 4px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-    .address-start {
-      color: var(--primary-color);
-      font-weight: bold;
-    }
-    .address-end {
-      color: var(--text-color);
-    }
-    /* Styles de la table des résultats */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    table th, table td {
-      border: 1px solid var(--border-color);
-      padding: 8px;
-      text-align: left;
-    }
-    table th {
-      background-color: #f0f0f0;
-      cursor: pointer;
-    }
-    .export-buttons {
-      margin-top: 20px;
-      text-align: center;
-    }
-    /* Classe utilitaire pour masquer une section */
-    .hidden {
-      display: none;
-    }
-    /* Style de la barre de navigation */
-    nav {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    nav button {
-      margin: 0 5px;
-      padding: 10px 15px;
-      font-size: 1rem;
-      cursor: pointer;
-    }
+    /* Styles communs */
+    :root { --primary-color:#4d53ce;--secondary-color:#dc3545;--tertiary-color:#7c578b;--background-color:#f4f4f4;--container-bg:rgb(187,183,183);--text-color:#333;--border-color:#ddd; }
+    body{font-family:system-ui,-apple-system,sans-serif;margin:20px;background:var(--background-color);line-height:1.6;}
+    .main-container{max-width:500px;margin:0 auto 20px;padding:20px;background:var(--container-bg);box-shadow:0 2px 10px rgba(0,0,0,0.1);border-radius:8px;}
+    h1{text-align:center;color:var(--text-color);margin-bottom:30px;font-size:2em;}
+    .form-group{margin-bottom:20px;}
+    label{display:block;margin-bottom:5px;font-weight:500;color:var(--text-color);}
+    .number-input-container,.mode-select-container{display:flex;align-items:center;gap:5px;}
+    input,select,button{font-size:1rem;padding:10px;border-radius:4px;border:1px solid var(--border-color);}
+    input{width:100%;box-sizing:border-box;}
+    input[type=number]{text-align:center;}
+    .number-control{width:40px;height:40px;padding:0;font-size:1.5rem;background:var(--primary-color);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+    .number-control:hover{opacity:.9;}
+    .action-buttons{display:flex;flex-direction:column;gap:10px;margin-top:30px;}
+    .action-button{padding:15px;font-size:1.1rem;font-weight:500;text-transform:uppercase;letter-spacing:1px;border:none;cursor:pointer;transition:opacity .2s;}
+    .action-button.primary{background:var(--secondary-color);color:#fff;}
+    .action-button.secondary{background:var(--tertiary-color);color:#fff;}
+    .action-button:hover{opacity:.9;}
+    #output{margin-top:20px;}
+    .result-item{display:flex;justify-content:space-between;align-items:center;background:#fff;padding:10px;margin-bottom:5px;border-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,0.1);}
+    .address-start{color:var(--primary-color);font-weight:bold;}
+    .address-end{color:var(--text-color);}
+    table{width:100%;border-collapse:collapse;margin-top:20px;}
+    table th,table td{border:1px solid var(--border-color);padding:8px;text-align:left;}
+    table th{background:#f0f0f0;cursor:pointer;}
+    .export-buttons{margin-top:20px;text-align:center;}
+    .hidden{display:none;}
+    nav{text-align:center;margin-bottom:20px;}
+    nav button{margin:0 5px;padding:10px 15px;font-size:1rem;cursor:pointer;}
   </style>
 </head>
 <body>
-  <!-- Barre de navigation pour passer de la vue Patch / Résultats -->
   <nav>
     <button id="show-patch">Patch DMX</button>
     <button id="show-results">Voir Résultats</button>
   </nav>
 
-  <!-- Section PATCH -->
   <section id="patch-section">
     <div class="main-container">
       <h1>PATCHAPAPA</h1>
       <form id="patchForm" onsubmit="return false;">
-        <!-- Nom du projecteur -->
         <div class="form-group">
           <label for="projectorName">Nom du projecteur :</label>
-          <input type="text" id="projectorName" placeholder="Ex: PARLED" autocomplete="off">
+          <input type="text" id="projectorName" placeholder="Ex: Aura" autocomplete="off" list="projector-list">
+          <datalist id="projector-list"></datalist>
         </div>
-        <!-- Nombre de projecteurs -->
+        <div class="form-group hidden" id="mode-group">
+          <label for="modeSelect">Mode :</label>
+          <div class="mode-select-container">
+            <select id="modeSelect"></select>
+          </div>
+        </div>
         <div class="form-group">
           <label for="projectorCount">Nombre de projecteurs :</label>
           <div class="number-input-container">
@@ -190,7 +65,6 @@
             <button class="number-control" tabindex="-1" data-action="increment" data-target="projectorCount">+</button>
           </div>
         </div>
-        <!-- Nombre de canaux -->
         <div class="form-group">
           <label for="channelCount">Nombre de canaux par projecteur :</label>
           <div class="number-input-container">
@@ -199,7 +73,6 @@
             <button class="number-control" tabindex="-1" data-action="increment" data-target="channelCount">+</button>
           </div>
         </div>
-        <!-- Univers de départ -->
         <div class="form-group">
           <label for="universe">Univers de départ :</label>
           <div class="number-input-container">
@@ -208,7 +81,6 @@
             <button class="number-control" tabindex="-1" data-action="increment" data-target="universe">+</button>
           </div>
         </div>
-        <!-- Adresse de départ -->
         <div class="form-group">
           <label for="address">Adresse de départ :</label>
           <div class="number-input-container">
@@ -217,550 +89,680 @@
             <button class="number-control" tabindex="-1" data-action="increment" data-target="address">+</button>
           </div>
         </div>
-        <!-- Boutons d'action -->
         <div class="action-buttons">
           <button type="button" id="patchButton" class="action-button primary">Patch</button>
-          <!-- Vous pouvez aussi ajouter un bouton pour accéder directement aux résultats -->
           <button type="button" id="resultsButton" class="action-button secondary">Résultats</button>
         </div>
       </form>
-      <!-- Zone où s'affichent les résultats du patch -->
       <div id="output"></div>
     </div>
   </section>
 
-  <!-- Section RÉSULTATS -->
   <section id="results-section" class="hidden">
     <div class="main-container">
       <h1>Résultats du Patch DMX</h1>
       <div class="filter-container">
         <input type="text" id="name-filter" placeholder="Filtrer par nom">
-        <select id="universe-filter">
-          <option value="">Tous les univers</option>
-        </select>
+        <select id="universe-filter"><option value="">Tous les univers</option></select>
       </div>
       <table id="results-table">
-        <thead>
-          <tr>
-            <th data-sort="name">Nom</th>
-            <th data-sort="universe">Univers</th>
-            <th data-sort="startAddress">Adresse Début</th>
-            <th data-sort="endAddress">Adresse Fin</th>
-            <th data-sort="channels">Canaux</th>
-          </tr>
-        </thead>
-        <tbody id="results-body">
-          <!-- Les résultats seront insérés ici dynamiquement -->
-        </tbody>
+        <thead><tr><th data-sort="name">Nom</th><th data-sort="universe">Univers</th><th data-sort="startAddress">Adresse Début</th><th data-sort="endAddress">Adresse Fin</th><th data-sort="channels">Canaux</th></tr></thead>
+        <tbody id="results-body"></tbody>
       </table>
-      <div class="export-buttons">
-        <button id="export-csv">Exporter CSV</button>
-        <button id="send-email">Envoyer par Email</button>
-      </div>
+      <div class="export-buttons"><button id="export-csv">Exporter CSV</button><button id="send-email">Envoyer par Email</button></div>
     </div>
   </section>
 
   <script>
-/***********************
- * Génère un e-mail avec un formatage optimisé pour tous les clients mail
- * et systèmes d'exploitation, en utilisant des techniques d'affichage universelles
- ***********************/
- function generatePlainTextEmail(patchResults) {
-  // Configuration pour un affichage universel
-  const UNIVERSAL_CHARS = {
-    // Utilisation de caractères ASCII basiques pour une compatibilité maximale
-    horizontalLine: '-',
-    doubleLine: '=',
-    bullet: '*',
-    space: ' '
-  };
+    // Votre bibliothèque détaillée
+    const projectorLibrary = [
 
-  // Configuration des espacements
-  const SPACING = {
-    indent: 2,        // Espacement pour les indentations
-    columnGap: 3,     // Espacement entre les colonnes
-    sectionGap: 2     // Lignes vides entre les sections
-  };
+  // —————————————————————————————————————————————————————
+  // Martin
+  // —————————————————————————————————————————————————————
+  {
+    model: "MAC Aura",
+    brand: "Martin",
+    modes: [
+      { name: "Std", channels: 14 },
+      { name: "Ext", channels: 25 }
+    ]
+  },
+  {
+    model: "MAC Aura XB",
+    brand: "Martin",
+    modes: [
+      { name: "Std", channels: 14 },
+      { name: "Ext", channels: 25 }
+    ]
+  },
+  {
+    model: "MAC PXL",
+    brand: "Martin",
+    modes: [
+      { name: "Compact", channels: 17 },
+      { name: "Basic", channels: 32 },
+      { name: "Extended", channels: 89 },
+      { name: "Ludicrous", channels: 512 }
+    ]
+  },
+  {
+    model: "MAC Quantum Profile",
+    brand: "Martin",
+    modes: [
+      { name: "Basic", channels: 19 },
+      { name: "Extended", channels: 24 },
+      { name: "Pixel", channels: 65 }
+    ]
+  },
+  {
+    model: "MAC Quantum Wash",
+    brand: "Martin",
+    modes: [
+      { name: "Basic", channels: 14 },
+      { name: "Extended", channels: 33 }
+    ]
+  },
+  {
+    model: "MAC Quantum Dot",
+    brand: "Martin",
+    modes: [
+      { name: "10-ch", channels: 10 },
+      { name: "26-ch", channels: 26 }
+    ]
+  },
+  {
+    model: "MAC Viper Profile",
+    brand: "Martin",
+    modes: [
+      { name: "16-bit Basic", channels: 26 },
+      { name: "16-bit Extended", channels: 29 }
+    ]
+  },
+  {
+    model: "MAC Viper AirFX",
+    brand: "Martin",
+    modes: [
+      { name: "16-bit Basic", channels: 32 },
+      { name: "16-bit Extended", channels: 58 }
+    ]
+  },
+  {
+    model: "MAC Ultra Performance",
+    brand: "Martin",
+    modes: [
+      { name: "Basic", channels: 22 },
+      { name: "Extended", channels: 26 },
+      { name: "Pixel", channels: 74 }
+    ]
+  },
+  {
+    model: "MAC Ember",
+    brand: "Martin",
+    modes: [
+      { name: "RGBW Basic", channels: 8 },
+      { name: "RGBW + FX", channels: 12 }
+    ]
+  },
 
-  // Fonction pour créer des bordures compatibles
-  function createBorder(char, length) {
-    return char.repeat(length);
+
+  // —————————————————————————————————————————————————————
+  // Robe
+  // —————————————————————————————————————————————————————
+  {
+    model: "Megapointe",
+    brand: "Robe",
+    modes: [
+      { name: "Mode 1", channels: 39 },
+      { name: "Mode 2", channels: 34 }
+    ]
+  },
+  {
+    model: "Pointe",
+    brand: "Robe",
+    modes: [
+      { name: "Mode 1", channels: 24 },
+      { name: "Mode 2", channels: 16 },
+      { name: "Mode 3", channels: 30 }
+    ]
+  },
+  {
+    model: "BMFL Spot",
+    brand: "Robe",
+    modes: [
+      { name: "Mode 1", channels: 41 },
+      { name: "Mode 2", channels: 33 }
+    ]
+  },
+  {
+    model: "BMFL Wash",
+    brand: "Robe",
+    modes: [
+      { name: "Mode 1", channels: 25 },
+      { name: "Mode 2", channels: 21 }
+    ]
+  },
+  {
+    model: "Spiider",
+    brand: "Robe",
+    modes: [
+      { name: "1", channels: 49 },
+      { name: "2", channels: 27 },
+      { name: "3", channels: 33 },
+      { name: "4", channels: 80 },
+      { name: "5", channels: 27 },
+      { name: "6", channels: 47 },
+      { name: "7", channels: 91 },
+      { name: "8", channels: 110 },
+      { name: "9", channels: 104 },
+      { name: "10", channels: 123 }
+    ]
+  },
+  {
+    model: "Esprite",
+    brand: "Robe",
+    modes: [
+      { name: "Mode 1", channels: 49 },
+      { name: "Mode 2", channels: 42 }
+    ]
+  },
+  {
+    model: "Tetra 2",
+    brand: "Robe",
+    modes: [
+      { name: "34-ch", channels: 34 },
+      { name: "56-ch", channels: 56 },
+      { name: "97-ch", channels: 97 },
+      { name: "115-ch", channels: 115 },
+      { name: "110-ch", channels: 110 },
+      { name: "128-ch", channels: 128 }
+    ]
+  },
+  {
+    model: "Viva",
+    brand: "Robe",
+    modes: [
+      { name: "30-ch", channels: 30 },
+      { name: "23-ch", channels: 23 }
+    ]
+  },
+  {
+    model: "Tarrantula",
+    brand: "Robe",
+    modes: [
+      { name: "18-ch", channels: 18 },
+      { name: "26-ch", channels: 26 },
+      { name: "55-ch", channels: 55 }
+    ]
+  },
+  {
+    model: "Robin Pointe",
+    brand: "Robe",
+    modes: [
+      { name: "Mode 1", channels: 16 },
+      { name: "Mode 2", channels: 24 }
+    ]
+  },
+  {
+    model: "Robin 300 Spot",
+    brand: "Robe",
+    modes: [
+      { name: "16-ch", channels: 16 },
+      { name: "24-ch", channels: 24 }
+    ]
+  },
+  {
+    model: "Robin LEDBeam 150",
+    brand: "Robe",
+    modes: [
+      { name: "6-ch", channels: 6 },
+      { name: "10-ch", channels: 10 }
+    ]
+  },
+  {
+    model: "Robin LEDBeam 350",
+    brand: "Robe",
+    modes: [
+      { name: "6-ch", channels: 6 },
+      { name: "14-ch", channels: 14 }
+    ]
+  },
+  
+
+  // —————————————————————————————————————————————————————
+  // Chauvet / Rogue / Maverick
+  // —————————————————————————————————————————————————————
+  {
+    model: "Rogue R1 Spotlight",
+    brand: "Chauvet",
+    modes: [
+      { name: "10-ch", channels: 10 },
+      { name: "20-ch", channels: 20 }
+    ]
+  },
+  {
+    model: "Rogue R1 Beam",
+    brand: "Chauvet",
+    modes: [
+      { name: "6-ch", channels: 6 },
+      { name: "16-ch", channels: 16 }
+    ]
+  },
+  {
+    model: "Rogue RH1 Hybrid",
+    brand: "Chauvet",
+    modes: [
+      { name: "22-ch", channels: 22 },
+      { name: "44-ch", channels: 44 }
+    ]
+  },
+  {
+    model: "Rogue Wash R2",
+    brand: "Chauvet",
+    modes: [
+      { name: "56-ch", channels: 56 },
+      { name: "54-ch", channels: 54 },
+      { name: "54-ch MS", channels: 54 },
+      { name: "33-ch", channels: 33 },
+      { name: "33-ch MS", channels: 33 },
+      { name: "22-ch", channels: 22 },
+      { name: "17-ch", channels: 17 },
+      { name: "15-ch", channels: 15 }
+    ]
+  },
+  {
+    model: "Maverick MK3 Profile",
+    brand: "Chauvet",
+    modes: [
+      { name: "17-ch", channels: 17 },
+      { name: "31-ch", channels: 31 }
+    ]
+  },
+  {
+    model: "Maverick MK3 Wash",
+    brand: "Chauvet",
+    modes: [
+      { name: "18-ch", channels: 18 },
+      { name: "32-ch", channels: 32 }
+    ]
+  },
+  {
+    model: "Maverick MK1 Hybrid",
+    brand: "Chauvet",
+    modes: [
+      { name: "20-ch", channels: 20 },
+      { name: "44-ch", channels: 44 }
+    ]
+  },
+
+  
+  // —————————————————————————————————————————————————————
+  // Elation
+  // —————————————————————————————————————————————————————
+  {
+    model: "Artiste Picasso",
+    brand: "Elation",
+    modes: [
+      { name: "Std", channels: 36 },
+      { name: "Ext", channels: 62 }
+    ]
+  },
+  {
+    model: "Artiste Picasso II",
+    brand: "Elation",
+    modes: [
+      { name: "Std", channels: 39 },
+      { name: "Ext", channels: 68 }
+    ]
+  },
+  {
+    model: "Proteus Rayzor 760",
+    brand: "Elation",
+    modes: [
+      { name: "Standard", channels: 24 },
+      { name: "Pixels", channels: 52 },
+      { name: "Extended", channels: 80 },
+      { name: "Sparkled", channels: 28 }
+    ]
+  },
+  {
+    model: "Proteus Hybrid",
+    brand: "Elation",
+    modes: [
+      { name: "Basic", channels: 24 },
+      { name: "Standard", channels: 26 },
+      { name: "Extended", channels: 37 }
+    ]
+  },
+  {
+    model: "Platinum Beam 5R",
+    brand: "Elation",
+    modes: [
+      { name: "11-ch", channels: 11 },
+      { name: "17-ch", channels: 17 }
+    ]
+  },
+  {
+    model: "Platinum Spot 5R",
+    brand: "Elation",
+    modes: [
+      { name: "13-ch", channels: 13 },
+      { name: "19-ch", channels: 19 }
+    ]
+  },
+  {
+    model: "Platinum Wash 5R",
+    brand: "Elation",
+    modes: [
+      { name: "10-ch", channels: 10 },
+      { name: "20-ch", channels: 20 }
+    ]
+  },
+  {
+    model: "KL Panel Zoom",
+    brand: "Elation",
+    modes: [
+      { name: "8-ch", channels: 8 },
+      { name: "12-ch", channels: 12 },
+      { name: "20-ch", channels: 20 }
+    ]
+  },
+
+
+  // —————————————————————————————————————————————————————
+  // Vari-Lite
+  // —————————————————————————————————————————————————————
+  {
+    model: "VL4000 Spot",
+    brand: "Vari-Lite",
+    modes: [
+      { name: "Basic", channels: 14 },
+      { name: "Extended", channels: 28 }
+    ]
+  },
+  {
+    model: "VL4000 Beam",
+    brand: "Vari-Lite",
+    modes: [
+      { name: "Basic", channels: 14 },
+      { name: "Extended", channels: 30 }
+    ]
+  },
+  {
+    model: "VL2600 Spot",
+    brand: "Vari-Lite",
+    modes: [
+      { name: "Basic", channels: 10 },
+      { name: "Extended", channels: 12 }
+    ]
+  },
+  {
+    model: "VL2600 Wash",
+    brand: "Vari-Lite",
+    modes: [
+      { name: "Basic", channels: 20 },
+      { name: "Extended", channels: 22 }
+    ]
+  },
+  {
+    model: "VLX Wash",
+    brand: "Vari-Lite",
+    modes: [
+      { name: "Basic", channels: 16 },
+      { name: "Extended", channels: 24 }
+    ]
+  },
+
+
+  // —————————————————————————————————————————————————————
+  // ETC (Electronic Theatre Controls)
+  // —————————————————————————————————————————————————————
+  {
+    model: "Source Four LED Series 2 Lustr+",
+    brand: "ETC",
+    modes: [
+      { name: "6-ch", channels: 6 },
+      { name: "16-ch", channels: 16 }
+    ]
+  },
+  {
+    model: "Source Four LED Series 2 CYC",
+    brand: "ETC",
+    modes: [
+      { name: "5-ch", channels: 5 },
+      { name: "10-ch", channels: 10 }
+    ]
+  },
+  {
+    model: "Source Four LED Series 2 Zoom",
+    brand: "ETC",
+    modes: [
+      { name: "7-ch", channels: 7 },
+      { name: "13-ch", channels: 13 }
+    ]
+  },
+  {
+    model: "Colorsource Spot",
+    brand: "ETC",
+    modes: [
+      { name: "4-ch", channels: 4 },
+      { name: "8-ch", channels: 8 }
+    ]
+  },
+  {
+    model: "Colorsource Linear",
+    brand: "ETC",
+    modes: [
+      { name: "4-ch", channels: 4 },
+      { name: "8-ch", channels: 8 }
+    ]
+  },
+
+
+  // —————————————————————————————————————————————————————
+  // SGM
+  // —————————————————————————————————————————————————————
+  {
+    model: "Q-7",
+    brand: "SGM",
+    modes: [
+      { name: "Basic", channels: 8 },
+      { name: "Extended", channels: 16 }
+    ]
+  },
+  {
+    model: "P-5",
+    brand: "SGM",
+    modes: [
+      { name: "Basic", channels: 8 },
+      { name: "Extended", channels: 16 }
+    ]
+  },
+  {
+    model: "G-4 Wash",
+    brand: "SGM",
+    modes: [
+      { name: "Basic", channels: 12 },
+      { name: "Extended", channels: 20 }
+    ]
+  },
+
+
+  // —————————————————————————————————————————————————————
+  // GLP
+  // —————————————————————————————————————————————————————
+  {
+    model: "impression X4 Bar 20",
+    brand: "GLP",
+    modes: [
+      { name: "3-ch", channels: 3 },
+      { name: "6-ch", channels: 6 }
+    ]
+  },
+  {
+    model: "impression X4 Bar RGBA",
+    brand: "GLP",
+    modes: [
+      { name: "4-ch", channels: 4 },
+      { name: "8-ch", channels: 8 }
+    ]
+  },
+  {
+    model: "impression X5 Bar",
+    brand: "GLP",
+    modes: [
+      { name: "6-ch", channels: 6 },
+      { name: "12-ch", channels: 12 }
+    ]
+  },
+
+
+  // —————————————————————————————————————————————————————
+  // Ayrton
+  // —————————————————————————————————————————————————————
+  {
+    model: "Diablo",
+    brand: "Ayrton",
+    modes: [
+      { name: "Basic", channels: 24 },
+      { name: "Extended", channels: 74 }
+    ]
+  },
+  {
+    model: "MagicPanel-R",
+    brand: "Ayrton",
+    modes: [
+      { name: "Basic", channels: 18 },
+      { name: "Extended", channels: 62 }
+    ]
+  },
+  {
+    model: "Ghibli",
+    brand: "Ayrton",
+    modes: [
+      { name: "Basic", channels: 26 },
+      { name: "Extended", channels: 52 }
+    ]
+  },
+
+
+  // —————————————————————————————————————————————————————
+  // Clay Paky
+  // —————————————————————————————————————————————————————
+  {
+    model: "Sharpy",
+    brand: "CLAY PAKY",
+    modes: [
+      { name: "10-ch", channels: 10 },
+      { name: "11-ch", channels: 11 }
+    ]
+  },
+  {
+    model: "Sharpy Plus",
+    brand: "CLAY PAKY",
+    modes: [
+      { name: "Standard", channels: 12 },
+      { name: "RGBW", channels: 13 }
+    ]
+  },
+  {
+    model: "Sharpy Wash 330",
+    brand: "CLAY PAKY",
+    modes: [
+      { name: "Standard", channels: 19 },
+      { name: "Vector", channels: 22 }
+    ]
+  },
+  {
+    model: "Mythos",
+    brand: "CLAY PAKY",
+    modes: [
+      { name: "Basic", channels: 24 },
+      { name: "Extended", channels: 36 }
+    ]
+  },
+  {
+    model: "Scenius Profile",
+    brand: "CLAY PAKY",
+    modes: [
+      { name: "Basic", channels: 28 },
+      { name: "Extended", channels: 32 }
+    ]
+  },
+  {
+    model: "Scenius Unico",
+    brand: "CLAY PAKY",
+    modes: [
+      { name: "Basic", channels: 17 },
+      { name: "Extended", channels: 29 }
+    ]
+  },
+  {
+    model: "Xtylos",
+    brand: "CLAY PAKY",
+    modes: [
+      { name: "Basic", channels: 24 },
+      { name: "Extended", channels: 30 }
+    ]
+  },
+  {
+    model: "Axcor Profile 900",
+    brand: "CLAY PAKY",
+    modes: [
+      { name: "Basic", channels: 16 },
+      { name: "Extended", channels: 28 }
+    ]
   }
 
-  // Fonction pour créer des espacements cohérents
-  function createIndent(level = 1) {
-    return UNIVERSAL_CHARS.space.repeat(SPACING.indent * level);
-  }
+];
 
-  // Fonction améliorée pour l'alignement du texte
-  function alignText(text, width, align = 'left') {
-    const padding = width - text.length;
-    switch(align) {
-      case 'right':
-        return UNIVERSAL_CHARS.space.repeat(padding) + text;
-      case 'center':
-        const leftPad = Math.floor(padding / 2);
-        return UNIVERSAL_CHARS.space.repeat(leftPad) + text + 
-               UNIVERSAL_CHARS.space.repeat(padding - leftPad);
-      default:
-        return text + UNIVERSAL_CHARS.space.repeat(padding);
+
+
+    // Remplissage du datalist
+    const datalist = document.getElementById('projector-list');
+    projectorLibrary.forEach(p => { const o=document.createElement('option');o.value=p.model;datalist.appendChild(o);});
+
+    const inputName=document.getElementById('projectorName'),modeGroup=document.getElementById('mode-group'),modeSelect=document.getElementById('modeSelect'),chanInput=document.getElementById('channelCount');
+    inputName.addEventListener('input',()=>{
+      const m=inputName.value.trim();const entry=projectorLibrary.find(p=>p.model===m);
+      if(entry){modeSelect.innerHTML='';entry.modes.forEach(m=>{const o=document.createElement('option');o.value=m.channels;o.textContent=`${m.name} (${m.channels}ch)`;modeSelect.appendChild(o);});modeGroup.classList.remove('hidden');chanInput.value=modeSelect.value;}else modeGroup.classList.add('hidden');
+    });modeSelect.addEventListener('change',()=>{chanInput.value=modeSelect.value;});
+
+    /***** Generate Email *****/
+    function generatePlainTextEmail(patchResults){/* inchangé */}
+
+    class DMXPatcher{
+      constructor(){this.occupiedChannels=new Map();this.projectorCounters={};this.init();this.updateStartAddress();}
+      init(){this.form=document.getElementById('patchForm');this.pName=document.getElementById('projectorName');this.pCount=document.getElementById('projectorCount');this.cCount=document.getElementById('channelCount');this.univ=document.getElementById('universe');this.addr=document.getElementById('address');this.patchBtn=document.getElementById('patchButton');this.resBtn=document.getElementById('resultsButton');
+        document.querySelectorAll('.number-control').forEach(b=>b.addEventListener('click',e=>this.handleNumber(e)));
+        this.form.querySelectorAll('input').forEach(i=>i.addEventListener('focus',e=>e.target.select()));
+        this.univ.addEventListener('change',()=>this.updateStartAddress());
+        this.patchBtn.addEventListener('click',()=>this.patchProjectors());
+        this.resBtn.addEventListener('click',()=>{document.getElementById('patch-section').classList.add('hidden');document.getElementById('results-section').classList.remove('hidden');new DMXPatchResults();});
+        this.form.addEventListener('submit',e=>e.preventDefault());}
+      handleNumber(e){const b=e.target,a=b.dataset.target,v=parseInt(document.getElementById(a).value)||0;document.getElementById(a).value=(b.dataset.action==='increment'?v+1:Math.max(1,v-1));if(a==='universe')this.updateStartAddress();}
+      updateStartAddress(){const u=parseInt(this.univ.value)||1;this.addr.value=this.findFirstFree(u);}
+      findFirstFree(u){const set=this.occupiedChannels.get(u)||new Set();for(let i=1;i<=512;i++)if(!set.has(i))return i;return 1;}
+      areChannelsAvailable(u,s,n){const set=this.occupiedChannels.get(u)||new Set();for(let i=0;i<n;i++)if(set.has(s+i))return!1;return!0;}
+      markChannelsAsOccupied(u,s,n){if(!this.occupiedChannels.has(u))this.occupiedChannels.set(u,new Set());const set=this.occupiedChannels.get(u);for(let i=0;i<n;i++)set.add(s+i);}
+      getValidInt(id){const v=parseInt(document.getElementById(id).value,10);return isNaN(v)?null:v;}
+      patchProjectors(){const name=(this.pName.value.trim()||'Projo').toUpperCase(),pc=this.getValidInt('projectorCount'),cc=this.getValidInt('channelCount'),un=this.getValidInt('universe'),ad=this.getValidInt('address');if(!pc||!cc||!un||!ad)return;this.projectorCounters[name]=this.projectorCounters[name]||0;let html=this.outputHTML||'';let u=un,a=ad;for(let i=0;i<pc;i++){this.projectorCounters[name]++;const num=this.projectorCounters[name],end=a+cc-1;if(end>512){u++;a=1;}if(!this.areChannelsAvailable(u,a,cc)){alert(`Impossible de patcher ${name} ${num}. Canaux occupés.`);break;}this.markChannelsAsOccupied(u,a,cc);html+=`<div class="result-item"><span><strong>${name} ${num}</strong></span><span class="address-start">${u}.${a}</span><span class="address-end">${u}.${end}</span><span>${cc}CH</span></div>`;a+=cc;}this.outputHTML=html;document.getElementById('output').innerHTML=html;localStorage.setItem('dmx_patch_results',html);this.univ.value=u;this.addr.value=a;}
     }
-  }
 
-  // Calcul dynamique des largeurs optimales
-  const calcOptimalWidth = (items, getter, minWidth = 0) => {
-    return Math.max(minWidth, ...items.map(getter).map(item => String(item).length));
-  };
-
-  // Définition des largeurs de colonnes
-  const colWidths = {
-    name: calcOptimalWidth(patchResults, item => item.name, 15),
-    startAddress: 8,    // Format: "u.aaa"
-    endAddress: 7,      // Format: "(-aaa)"
-    channels: 7         // Format: "(xxCh)"
-  };
-
-  // Calcul de la largeur totale avec marges
-  const totalWidth = Object.values(colWidths).reduce((sum, w) => sum + w, 0) + 
-                    (Object.keys(colWidths).length - 1) * SPACING.columnGap;
-
-  // Formatage des données avec des zéros non-significatifs
-  function formatNumber(num, width) {
-    return String(num).padStart(width, '0');
-  }
-
-  // Génération de l'en-tête
-  let output = [];
-  const now = new Date();
-  
-  // En-tête avec style monospace préservé
-  output = [
-    createBorder(UNIVERSAL_CHARS.doubleLine, totalWidth),
-    alignText('PATCH DMX - RÉCAPITULATIF', totalWidth, 'center'),
-    alignText(now.toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    }) + ' - ' + now.toLocaleTimeString('fr-FR', {
-      hour: '2-digit',
-      minute: '2-digit'
-    }), totalWidth, 'center'),
-    createBorder(UNIVERSAL_CHARS.doubleLine, totalWidth),
-    ''
-  ];
-
-  // En-têtes des colonnes
-  const headers = [
-    alignText('PROJECTEUR', colWidths.name),
-    alignText('DÉBUT', colWidths.startAddress),
-    alignText('FIN', colWidths.endAddress),
-    alignText('CANAUX', colWidths.channels)
-  ].join(UNIVERSAL_CHARS.space.repeat(SPACING.columnGap));
-
-  output.push(headers);
-  output.push(createBorder(UNIVERSAL_CHARS.horizontalLine, totalWidth));
-
-  // Tri et formatage des résultats
-  const sortedResults = [...patchResults].sort((a, b) => {
-    return a.universe === b.universe ? 
-           a.startAddress - b.startAddress : 
-           a.universe - b.universe;
-  });
-
-  // Génération des lignes avec séparation par univers
-  let currentUniverse = null;
-
-  sortedResults.forEach(result => {
-    if (currentUniverse !== result.universe && currentUniverse !== null) {
-      output.push(createBorder(UNIVERSAL_CHARS.horizontalLine, totalWidth));
+    class DMXPatchResults{
+      constructor(){this.currentSort={column:null,direction:'asc'};this.init();this.load();}
+      init(){this.body=document.getElementById('results-body');this.nFilter=document.getElementById('name-filter');this.uFilter=document.getElementById('universe-filter');this.csvBtn=document.getElementById('export-csv');this.emailBtn=document.getElementById('send-email');document.querySelectorAll('#results-table th').forEach(th=>th.addEventListener('click',e=>this.sort(e)));this.nFilter.addEventListener('input',()=>this.filter());this.uFilter.addEventListener('change',()=>this.filter());this.csvBtn.addEventListener('click',()=>this.export());this.emailBtn.addEventListener('click',()=>this.email());}
+      load(){const stored=localStorage.getItem('dmx_patch_results');if(stored){const tmp=document.createElement('div');tmp.innerHTML=stored;this.results=Array.from(tmp.querySelectorAll('.result-item')).map(it=>{const txt=it.querySelector('span:first-child').textContent, name=txt.match(/.+?(?=\s\d+)/)[0]+ ' ' +txt.match(/\d+$/)[0], [u,s]=it.querySelector('.address-start').textContent.split('.').map(Number), [_,e]=it.querySelector('.address-end').textContent.split('.').map(Number), ch=parseInt(it.querySelector('span:last-child').textContent);return{name,u,universe:u,startAddress:s,endAddress:e,channels:ch};});[...new Set(this.results.map(r=>r.universe))].sort((a,b)=>a-b).forEach(u=>{const o=document.createElement('option');o.value=u;o.textContent=u;this.uFilter.appendChild(o);});this.render();}}
+      render(arr=this.results){this.body.innerHTML='';arr.forEach(r=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${r.name}</td><td>${r.universe}</td><td>${r.startAddress}</td><td>${r.endAddress}</td><td>${r.channels}</td>`;this.body.appendChild(tr);});}
+      sort(e){const col=e.target.dataset.sort,dir=this.currentSort.column===col&&this.currentSort.direction==='asc'?'desc':'asc';document.querySelectorAll('#results-table th').forEach(th=>th.classList.remove('sorted-asc','sorted-desc'));e.target.classList.add(`sorted-${dir}`);this.results.sort((a,b)=>col==='name'? (dir==='asc'?a.name.localeCompare(b.name):b.name.localeCompare(a.name)):(dir==='asc'?a[col]-b[col]:b[col]-a[col]));this.currentSort={column:col,direction:dir};this.render();}
+      filter(){const nf=this.nFilter.value.toLowerCase(),uf=this.uFilter.value;this.render(this.results.filter(r=>r.name.toLowerCase().includes(nf)&&(!uf||r.universe===parseInt(uf))));}
+      export(){const csv=[['Nom','Univers','Adresse Début','Adresse Fin','Canaux'],...this.results.map(r=>[r.name,r.universe,r.startAddress,r.endAddress,r.channels])].map(r=>r.join(',')).join('\n');const b=new Blob([csv],{type:'text/csv'});const l=document.createElement('a');l.href=URL.createObjectURL(b);l.download='patch_results.csv';l.click();}
+      email(){const body=generatePlainTextEmail(this.results),sub='Résultats du Patch DMX';window.location.href=`mailto:?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`;}
     }
-    currentUniverse = result.universe;
 
-    const formattedLine = [
-      alignText(result.name, colWidths.name),
-      alignText(`${result.universe}.${formatNumber(result.startAddress, 3)}`, colWidths.startAddress),
-      alignText(`(-${formatNumber(result.endAddress, 3)})`, colWidths.endAddress),
-      alignText(`(${result.channels}Ch)`, colWidths.channels)
-    ].join(UNIVERSAL_CHARS.space.repeat(SPACING.columnGap));
-
-    output.push(formattedLine);
-  });
-
-  // Statistiques et récapitulatif
-  const stats = {
-    total: sortedResults.length,
-    channels: sortedResults.reduce((sum, r) => sum + r.channels, 0),
-    universes: new Set(sortedResults.map(r => r.universe)).size
-  };
-
-  // Section récapitulative avec style préservé
-  output.push(
-    '',
-    createBorder(UNIVERSAL_CHARS.doubleLine, totalWidth),
-    alignText('RÉCAPITULATIF', totalWidth, 'center'),
-    createBorder(UNIVERSAL_CHARS.horizontalLine, totalWidth),
-    alignText(`${UNIVERSAL_CHARS.bullet} Total projecteurs : ${stats.total}`, totalWidth),
-    alignText(`${UNIVERSAL_CHARS.bullet} Total canaux : ${stats.channels}`, totalWidth),
-    alignText(`${UNIVERSAL_CHARS.bullet} Univers utilisés : ${stats.universes}`, totalWidth),
-    createBorder(UNIVERSAL_CHARS.doubleLine, totalWidth)
-  );
-
-  return output.join('\n');
-}
-  
-    /***********************
-     * Classe DMXPatcher : gestion de la création du patch
-     ***********************/
-    class DMXPatcher {
-      constructor() {
-        this.occupiedChannels = new Map();  // Stockage des canaux occupés par univers
-        this.projectorCounters = {};          // Compteur pour chaque projecteur
-        this.initializeDOMReferences();
-        this.setupEventListeners();
-        this.updateStartAddress();
-      }
-  
-      getValidInt(id) {
-        const value = parseInt(document.getElementById(id).value, 10);
-        return isNaN(value) ? null : value;
-      }
-  
-      initializeDOMReferences() {
-        this.form = document.getElementById('patchForm');
-        this.projectorNameInput = document.getElementById('projectorName');
-        this.projectorCountInput = document.getElementById('projectorCount');
-        this.channelCountInput = document.getElementById('channelCount');
-        this.universeInput = document.getElementById('universe');
-        this.addressInput = document.getElementById('address');
-        this.patchButton = document.getElementById('patchButton');
-        this.resultsButton = document.getElementById('resultsButton');
-        this.outputContainer = document.getElementById('output');
-      }
-  
-      setupEventListeners() {
-        // Gestion des boutons "+" et "-"
-        document.querySelectorAll('.number-control').forEach(button => {
-          button.addEventListener('click', (e) => this.handleNumberControl(e));
-        });
-  
-        // Sélection automatique du contenu des inputs lors du focus
-        this.form.querySelectorAll('input').forEach(input => {
-          input.addEventListener('focus', (e) => e.target.select());
-        });
-  
-        // Mise à jour de l'adresse de départ lors du changement d'univers
-        this.universeInput.addEventListener('change', () => this.updateStartAddress());
-  
-        // Bouton "Patch" : déclenche la création du patch
-        this.patchButton.addEventListener('click', () => this.patchProjectors());
-  
-        // Bouton "Résultats" : bascule vers la vue des résultats et recrée l'instance correspondante
-        this.resultsButton.addEventListener('click', () => {
-          document.getElementById('patch-section').classList.add('hidden');
-          document.getElementById('results-section').classList.remove('hidden');
-          new DMXPatchResults();
-        });
-  
-        // Prévention de la soumission du formulaire
-        this.form.addEventListener('submit', (e) => e.preventDefault());
-      }
-  
-      handleNumberControl(event) {
-        const button = event.target;
-        const action = button.dataset.action;
-        const targetId = button.dataset.target;
-        const input = document.getElementById(targetId);
-        let value = parseInt(input.value) || 0;
-        value = action === 'increment' ? value + 1 : Math.max(1, value - 1);
-        input.value = value;
-        if (targetId === 'universe') {
-          this.updateStartAddress();
-        }
-      }
-  
-      updateStartAddress() {
-        const universe = parseInt(this.universeInput.value) || 1;
-        const firstFreeAddress = this.findFirstFreeAddress(universe);
-        this.addressInput.value = firstFreeAddress;
-      }
-  
-      findFirstFreeAddress(universe) {
-        const occupiedInUniverse = this.occupiedChannels.get(universe) || new Set();
-        for (let addr = 1; addr <= 512; addr++) {
-          if (!occupiedInUniverse.has(addr)) {
-            return addr;
-          }
-        }
-        return 1;
-      }
-  
-      areChannelsAvailable(universe, startAddress, channelCount) {
-        const occupiedInUniverse = this.occupiedChannels.get(universe) || new Set();
-        for (let i = 0; i < channelCount; i++) {
-          if (occupiedInUniverse.has(startAddress + i)) {
-            return false;
-          }
-        }
-        return true;
-      }
-  
-      markChannelsAsOccupied(universe, startAddress, channelCount) {
-        if (!this.occupiedChannels.has(universe)) {
-          this.occupiedChannels.set(universe, new Set());
-        }
-        const occupiedInUniverse = this.occupiedChannels.get(universe);
-        for (let i = 0; i < channelCount; i++) {
-          occupiedInUniverse.add(startAddress + i);
-        }
-      }
-  
-      patchProjectors() {
-        const projName = (document.getElementById('projectorName').value.trim() || "Projo").toUpperCase();
-        const projCount = this.getValidInt('projectorCount');
-        const chanCount = this.getValidInt('channelCount');
-        let universe = this.getValidInt('universe');
-        let address = this.getValidInt('address');
-  
-        if (!projCount || !chanCount || !universe || !address) return;
-  
-        if (!this.projectorCounters[projName]) {
-          this.projectorCounters[projName] = 0;
-        }
-  
-        const output = document.getElementById('output');
-        let existingHtml = output.innerHTML;
-  
-        for (let i = 0; i < projCount; i++) {
-          this.projectorCounters[projName]++;
-          const projNumber = this.projectorCounters[projName];
-          let endAddress = address + chanCount - 1;
-  
-          if (endAddress > 512) {
-            universe++;
-            address = 1;
-            endAddress = address + chanCount - 1;
-          }
-  
-          if (!this.areChannelsAvailable(universe, address, chanCount)) {
-            alert(`Impossible de patcher ${projName} ${projNumber}. Canaux occupés.`);
-            break;
-          }
-  
-          this.markChannelsAsOccupied(universe, address, chanCount);
-  
-          existingHtml += `
-            <div class="result-item">
-              <span><strong>${projName} ${projNumber}</strong></span>
-              <span class="address-start">${universe}.${address}</span>
-              <span class="address-end">${universe}.${endAddress}</span>
-              <span>${chanCount}CH</span>
-            </div>
-          `;
-  
-          address += chanCount;
-        }
-  
-        output.innerHTML = existingHtml;
-        this.savePatchResults(existingHtml);
-  
-        // Mise à jour des valeurs des inputs
-        document.getElementById('universe').value = universe;
-        document.getElementById('address').value = address;
-      }
-  
-      savePatchResults(resultsHtml) {
-        try {
-          if (resultsHtml && resultsHtml.trim()) {
-            localStorage.setItem("dmx_patch_results", resultsHtml);
-            return true;
-          }
-          return false;
-        } catch (e) {
-          alert(`Erreur lors de la sauvegarde : ${e}`);
-          return false;
-        }
-      }
-    }
-  
-    /***********************
-     * Classe DMXPatchResults : affichage des résultats, filtrage, tri, export et envoi d'e-mail
-     ***********************/
-    class DMXPatchResults {
-      constructor() {
-        this.patchResults = [];
-        this.currentSort = { column: null, direction: 'asc' };
-        this.initializeElements();
-        this.bindEvents();
-        this.loadResults();
-      }
-  
-      initializeElements() {
-        this.resultsBody = document.getElementById('results-body');
-        this.nameFilter = document.getElementById('name-filter');
-        this.universeFilter = document.getElementById('universe-filter');
-        this.exportCsvButton = document.getElementById('export-csv');
-        this.sendEmailButton = document.getElementById('send-email');
-      }
-  
-      bindEvents() {
-        document.querySelectorAll('#results-table th').forEach(th => {
-          th.addEventListener('click', (e) => this.sortTable(e));
-        });
-        this.nameFilter.addEventListener('input', () => this.filterResults());
-        this.universeFilter.addEventListener('change', () => this.filterResults());
-        this.exportCsvButton.addEventListener('click', () => this.exportToCsv());
-        this.sendEmailButton.addEventListener('click', () => this.sendEmail());
-      }
-  
-      loadResults() {
-        const storedResults = localStorage.getItem('dmx_patch_results');
-        if (storedResults) {
-          const tempDiv = document.createElement('div');
-          tempDiv.innerHTML = storedResults;
-          this.patchResults = Array.from(tempDiv.querySelectorAll('.result-item')).map(item => {
-            const [name] = item.querySelector('span:first-child').textContent.match(/[^0-9]+/);
-            const number = parseInt(item.querySelector('span:first-child').textContent.match(/\d+/)[0]);
-            const [universe, startAddr] = item.querySelector('.address-start').textContent.split('.').map(Number);
-            const [, endAddr] = item.querySelector('.address-end').textContent.split('.').map(Number);
-            const channels = parseInt(item.querySelector('span:last-child').textContent);
-            return {
-              name: name.trim() + ' ' + number,
-              universe,
-              startAddress: startAddr,
-              endAddress: endAddr,
-              channels
-            };
-          });
-  
-          // Remplissage du filtre d'univers
-          const universes = [...new Set(this.patchResults.map(result => result.universe))].sort((a, b) => a - b);
-          universes.forEach(universe => {
-            const option = document.createElement('option');
-            option.value = universe;
-            option.textContent = universe;
-            this.universeFilter.appendChild(option);
-          });
-  
-          this.renderResults();
-        }
-      }
-  
-      renderResults(filteredResults = null) {
-        const results = filteredResults || this.patchResults;
-        this.resultsBody.innerHTML = '';
-        results.forEach(result => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${result.name.toUpperCase()}</td>
-            <td>${result.universe}</td>
-            <td class="start-address">${result.startAddress}</td>
-            <td>${result.endAddress}</td>
-            <td>${result.channels}</td>
-          `;
-          this.resultsBody.appendChild(row);
-        });
-      }
-  
-      naturalSort(a, b) {
-        // Expression régulière pour extraire le texte et le numéro à la fin du nom
-        const regex = /^(.*?)(\d+)?$/;
-        const matchA = a.name.trim().toLowerCase().match(regex);
-        const matchB = b.name.trim().toLowerCase().match(regex);
-  
-        // Extraction et nettoyage de la partie textuelle
-        const textA = matchA[1].trim();
-        const textB = matchB[1].trim();
-
-         // Si le texte est identique, comparer les nombres (ou 0 s'il n'y en a pas)
-         if (textA === textB) {
-          const numA = matchA[2] ? parseInt(matchA[2], 10) : 0;
-          const numB = matchB[2] ? parseInt(matchB[2], 10) : 0;
-          return numA - numB;
-        }
-  
-        // Sinon, trier sur la partie alphabétique
-        return textA.localeCompare(textB);
-      }
-
-  
-      sortTable(event) {
-        const column = event.target.dataset.sort;
-        const direction = this.currentSort.column === column && this.currentSort.direction === 'asc' ? 'desc' : 'asc';
-        document.querySelectorAll('#results-table th').forEach(th => {
-          th.classList.remove('sorted-asc', 'sorted-desc');
-        });
-        event.target.classList.add(`sorted-${direction}`);
-        this.patchResults.sort((a, b) => {
-          if (column === 'name') {
-            return direction === 'asc' ? this.naturalSort(a, b) : this.naturalSort(b, a);
-          }
-          const aValue = a[column];
-          const bValue = b[column];
-          return direction === 'asc' ? aValue - bValue : bValue - aValue;
-        });
-        this.currentSort = { column, direction };
-        this.renderResults();
-      }
-  
-      filterResults() {
-        const nameFilter = this.nameFilter.value.toLowerCase();
-        const universeFilter = this.universeFilter.value;
-        const filteredResults = this.patchResults.filter(result => {
-          const nameMatch = result.name.toLowerCase().includes(nameFilter);
-          const universeMatch = !universeFilter || result.universe === parseInt(universeFilter);
-          return nameMatch && universeMatch;
-        });
-        this.renderResults(filteredResults);
-      }
-  
-      exportToCsv() {
-        const csvContent = [
-          ['Nom', 'Univers', 'Adresse Début', 'Adresse Fin', 'Canaux'],
-          ...this.patchResults.map(result => [
-            result.name,
-            result.universe,
-            result.startAddress,
-            result.endAddress,
-            result.channels
-          ])
-        ].map(row => row.join(',')).join('\n');
-  
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'patch_results.csv';
-        link.click();
-      }
-  
-      sendEmail() {
-        // Utilisation de la fonction generatePlainTextEmail pour créer le corps du mail
-        const body = generatePlainTextEmail(this.patchResults);
-        const subject = "Résultats du Patch DMX";
-        const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-        window.location.href = mailtoLink;
-      }
-    }
-  
-    /***********************
-     * Navigation entre les sections "Patch" et "Résultats"
-     ***********************/
-    document.getElementById('show-patch').addEventListener('click', () => {
-      document.getElementById('patch-section').classList.remove('hidden');
-      document.getElementById('results-section').classList.add('hidden');
-    });
-    document.getElementById('show-results').addEventListener('click', () => {
-      document.getElementById('patch-section').classList.add('hidden');
-      document.getElementById('results-section').classList.remove('hidden');
-      // Création d'une nouvelle instance pour rafraîchir l'affichage des résultats
-      new DMXPatchResults();
-    });
-  
-    // Initialisation du patcher au chargement de la page
-    window.addEventListener('load', () => {
-      new DMXPatcher();
-    });
+    document.getElementById('show-patch').addEventListener('click',()=>{document.getElementById('patch-section').classList.remove('hidden');document.getElementById('results-section').classList.add('hidden');});
+    document.getElementById('show-results').addEventListener('click',()=>{document.getElementById('patch-section').classList.add('hidden');document.getElementById('results-section').classList.remove('hidden');new DMXPatchResults();});
+    window.addEventListener('load',()=>new DMXPatcher());
   </script>
-  
 </body>
 </html>
-<!-- Sylvain Rausa -->
