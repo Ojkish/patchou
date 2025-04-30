@@ -746,7 +746,16 @@
     });modeSelect.addEventListener('change',()=>{chanInput.value=modeSelect.value;});
 
     /***** Generate Email *****/
-    function generatePlainTextEmail(patchResults){/* inchangé */}
+    function generatePlainTextEmail(patchResults){let lines = [];
+      lines.push('Résultats du Patch DMX:');
+      lines.push('');
+      patchResults.forEach(item => {
+        lines.push(
+          `${item.name} - Univers ${item.universe}, adresses ${item.startAddress} à ${item.endAddress}, ${item.channels} canaux`
+        );
+      });
+      return lines.join('\n');
+    }
 
     class DMXPatcher{
       constructor(){this.occupiedChannels=new Map();this.projectorCounters={};this.init();this.updateStartAddress();}
