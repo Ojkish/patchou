@@ -746,16 +746,152 @@
     });modeSelect.addEventListener('change',()=>{chanInput.value=modeSelect.value;});
 
     /***** Generate Email *****/
-    function generatePlainTextEmail(patchResults){let lines = [];
-      lines.push('Résultats du Patch DMX:');
-      lines.push('');
-      patchResults.forEach(item => {
-        lines.push(
-          `${item.name} - Univers ${item.universe}, adresses ${item.startAddress} à ${item.endAddress}, ${item.channels} canaux`
-        );
-      });
-      return lines.join('\n');
+    /***********************
+ * Génère un e-mail avec un formatage optimisé pour tous les clients mail
+ * et systèmes d'exploitation, en utilisant des techniques d'affichage universelles
+ ***********************/
+ function generatePlainTextEmail(patchResults) {
+  // Configuration pour un affichage universel
+  const UNIVERSAL_CHARS = {
+    // Utilisation de caractères ASCII basiques pour une compatibilité maximale
+    horizontalLine: '-',
+    doubleLine: '=',
+    bullet: '*',
+    space: ' '
+  };
+
+  // Configuration des espacements
+  const SPACING = {
+    indent: 2,        // Espacement pour les indentations
+    columnGap: 3,     // Espacement entre les colonnes
+    sectionGap: 2     // Lignes vides entre les sections
+  };
+
+  // Fonction pour créer des bordures compatibles
+  function createBorder(char, length) {
+    return char.repeat(length);
+  }
+
+  // Fonction pour créer des espacements cohérents
+  function createIndent(level = 1) {
+    return UNIVERSAL_CHARS.space.repeat(SPACING.indent * level);
+  }
+
+  // Fonction améliorée pour l'alignement du texte
+  function alignText(text, width, align = 'left') {
+    const padding = width - text.length;
+    switch(align) {
+      case 'right':
+        return UNIVERSAL_CHARS.space.repeat(padding) + text;
+      case 'center':
+        const leftPad = Math.floor(padding / 2);
+        return UNIVERSAL_CHARS.space.repeat(leftPad) + text + 
+               UNIVERSAL_CHARS.space.repeat(padding - leftPad);
+      default:
+        return text + UNIVERSAL_CHARS.space.repeat(padding);
     }
+  }
+
+  // Calcul dynamique des largeurs optimales
+  const calcOptimalWidth = (items, getter, minWidth = 0) => {
+    return Math.max(minWidth, ...items.map(getter).map(item => String(item).length));
+  };
+
+  // Définition des largeurs de colonnes
+  const colWidths = {
+    name: calcOptimalWidth(patchResults, item => item.name, 15),
+    startAddress: 8,    // Format: "u.aaa"
+    endAddress: 7,      // Format: "(-aaa)"
+    channels: 7         // Format: "(xxCh)"
+  };
+
+  // Calcul de la largeur totale avec marges
+  const totalWidth = Object.values(colWidths).reduce((sum, w) => sum + w, 0) + 
+                    (Object.keys(colWidths).length - 1) * SPACING.columnGap;
+
+  // Formatage des données avec des zéros non-significatifs
+  function formatNumber(num, width) {
+    return String(num).padStart(width, '0');
+  }
+
+  // Génération de l'en-tête
+  let output = [];
+  const now = new Date();
+  
+  // En-tête avec style monospace préservé
+  output = [
+    createBorder(UNIVERSAL_CHARS.doubleLine, totalWidth),
+    alignText('PATCH DMX - RÉCAPITULATIF', totalWidth, 'center'),
+    alignText(now.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }) + ' - ' + now.toLocaleTimeString('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit'
+    }), totalWidth, 'center'),
+    createBorder(UNIVERSAL_CHARS.doubleLine, totalWidth),
+    ''
+  ];
+
+  // En-têtes des colonnes
+  const headers = [
+    alignText('PROJECTEUR', colWidths.name),
+    alignText('DÉBUT', colWidths.startAddress),
+    alignText('FIN', colWidths.endAddress),
+    alignText('CANAUX', colWidths.channels)
+  ].join(UNIVERSAL_CHARS.space.repeat(SPACING.columnGap));
+
+  output.push(headers);
+  output.push(createBorder(UNIVERSAL_CHARS.horizontalLine, totalWidth));
+
+  // Tri et formatage des résultats
+  const sortedResults = [...patchResults].sort((a, b) => {
+    return a.universe === b.universe ? 
+           a.startAddress - b.startAddress : 
+           a.universe - b.universe;
+  });
+
+  // Génération des lignes avec séparation par univers
+  let currentUniverse = null;
+
+  sortedResults.forEach(result => {
+    if (currentUniverse !== result.universe && currentUniverse !== null) {
+      output.push(createBorder(UNIVERSAL_CHARS.horizontalLine, totalWidth));
+    }
+    currentUniverse = result.universe;
+
+    const formattedLine = [
+      alignText(result.name, colWidths.name),
+      alignText(`${result.universe}.${formatNumber(result.startAddress, 3)}`, colWidths.startAddress),
+      alignText(`(-${formatNumber(result.endAddress, 3)})`, colWidths.endAddress),
+      alignText(`(${result.channels}Ch)`, colWidths.channels)
+    ].join(UNIVERSAL_CHARS.space.repeat(SPACING.columnGap));
+
+    output.push(formattedLine);
+  });
+
+  // Statistiques et récapitulatif
+  const stats = {
+    total: sortedResults.length,
+    channels: sortedResults.reduce((sum, r) => sum + r.channels, 0),
+    universes: new Set(sortedResults.map(r => r.universe)).size
+  };
+
+  // Section récapitulative avec style préservé
+  output.push(
+    '',
+    createBorder(UNIVERSAL_CHARS.doubleLine, totalWidth),
+    alignText('RÉCAPITULATIF', totalWidth, 'center'),
+    createBorder(UNIVERSAL_CHARS.horizontalLine, totalWidth),
+    alignText(`${UNIVERSAL_CHARS.bullet} Total projecteurs : ${stats.total}`, totalWidth),
+    alignText(`${UNIVERSAL_CHARS.bullet} Total canaux : ${stats.channels}`, totalWidth),
+    alignText(`${UNIVERSAL_CHARS.bullet} Univers utilisés : ${stats.universes}`, totalWidth),
+    createBorder(UNIVERSAL_CHARS.doubleLine, totalWidth)
+  );
+
+  return output.join('\n');
+}
 
     class DMXPatcher{
       constructor(){this.occupiedChannels=new Map();this.projectorCounters={};this.init();this.updateStartAddress();}
