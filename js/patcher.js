@@ -6,7 +6,7 @@ import { showToast } from './notification.js';
 
 /**
  * Classe gérant la logique de patch DMX, avec gestion de conflits,
- * undo multi-niveaux, stockage local et remise à zéro.
+ * undo multi-niveaux persistant, stockage local et remise à zéro.
  */
 export class DMXPatcher {
   constructor() {
@@ -17,7 +17,7 @@ export class DMXPatcher {
     this.activeSuggestionIndex = -1;       // Pour la navigation des suggestions
 
     this.init();                           // Initialisation DOM & listeners
-    this.loadData();                       // Charger les données sauvegardées
+    this.loadData();                       // Charger les données + historique
     this.updateStartAddress();             // Adresse de départ initiale
   }
 
@@ -32,13 +32,13 @@ export class DMXPatcher {
     
     this.patchBtn     = document.getElementById('patchButton');
     this.undoBtn      = document.getElementById('undoButton');
-    this.resetBtn     = document.getElementById('resetButton'); // Nouveau bouton
+    this.resetBtn     = document.getElementById('resetButton'); // Lié au nouveau bouton HTML
     this.resBtn       = document.getElementById('resultsButton');
     
     this.navPatchBtn  = document.getElementById('show-patch');
     this.navResultsBtn= document.getElementById('show-results');
     
-    // Navigation
+    // Navigation entre les sections
     this.navPatchBtn.addEventListener('click', () => {
       document.getElementById('patch-section').classList.remove('hidden');
       document.getElementById('results-section').classList.add('hidden');
@@ -46,24 +46,23 @@ export class DMXPatcher {
     this.navResultsBtn.addEventListener('click', () => {
       document.getElementById('patch-section').classList.add('hidden');
       document.getElementById('results-section').classList.remove('hidden');
-      // Import dynamique pour les résultats
       import('./results.js').then(m => new m.DMXPatchResults());
     });
 
-    // Actions
+    // Actions principales
     this.patchBtn.addEventListener('click', () => this.patchProjectors());
     this.undoBtn.addEventListener('click', () => this.undo());
     if (this.resetBtn) {
-        this.resetBtn.addEventListener('click', () => this.resetAll());
+      this.resetBtn.addEventListener('click', () => this.resetAll());
     }
 
-    // Config + et -
+    // Configuration des contrôles + et -
     setupNumberControls('.number-control');
 
-    // Focus auto-select
+    // Focus auto-select pour faciliter la saisie
     document.querySelectorAll('input, select').forEach(el => el.addEventListener('focus', e => e.target.select()));
 
-    // Autocomplete Projector
+    // Autocomplete Projector avec Fuse.js
     const fuseOpts = { 
       keys: ['model','brand'], 
       useExtendedSearch: true,
@@ -77,27 +76,34 @@ export class DMXPatcher {
     this.pName.addEventListener('keydown', e => this.onProjectorKeyDown(e));
     this.pName.addEventListener('blur', () => setTimeout(() => document.getElementById('projector-suggestions')?.classList.add('hidden'), 150));
 
-    // Universe change
+    // Mise à jour de l'adresse libre quand on change d'univers
     this.univ.addEventListener('change', () => this.updateStartAddress());
 
-    // Prevent submit
+    // Empêcher l'envoi du formulaire classique
     this.form.addEventListener('submit', e => e.preventDefault());
 
     this.updateUndoButton();
   }
 
-  /** Sauvegarde l'état actuel dans le LocalStorage */
+  // --- PERSISTANCE DES DONNÉES ---
+
+  /** Sauvegarde l'état actuel ET l'historique complet dans le LocalStorage */
   persistData() {
     const state = {
       html: this.outputHTML,
       counters: this.projectorCounters,
-      // Conversion de Map<Univers, Set<Canaux>> en tableau pour JSON
-      channels: Array.from(this.occupiedChannels.entries()).map(([u, set]) => [u, Array.from(set)])
+      // Conversion Map/Set en Tableaux pour le JSON
+      channels: Array.from(this.occupiedChannels.entries()).map(([u, set]) => [u, Array.from(set)]),
+      // Conversion de chaque étape de l'historique
+      history: this.history.map(step => ({
+        ...step,
+        occClone: Array.from(step.occClone.entries()).map(([u, set]) => [u, Array.from(set)])
+      }))
     };
     localStorage.setItem('patchapapa_state', JSON.stringify(state));
   }
 
-  /** Charge les données depuis le LocalStorage au démarrage */
+  /** Charge les données et l'historique depuis le LocalStorage au démarrage */
   loadData() {
     const saved = localStorage.getItem('patchapapa_state');
     if (!saved) return;
@@ -107,27 +113,40 @@ export class DMXPatcher {
       this.outputHTML = data.html || '';
       this.projectorCounters = data.counters || {};
       
+      // Restauration de l'état actuel des canaux
       if (data.channels) {
         this.occupiedChannels = new Map(
           data.channels.map(([u, arr]) => [u, new Set(arr)])
         );
       }
+
+      // Restauration de la pile d'historique (Undo)
+      if (data.history) {
+        this.history = data.history.map(step => ({
+          ...step,
+          occClone: new Map(step.occClone.map(([u, arr]) => [u, new Set(arr)]))
+        }));
+      }
+
       document.getElementById('output').innerHTML = this.outputHTML;
+      this.updateUndoButton();
     } catch (e) {
-      console.error("Erreur de lecture du stockage local :", e);
+      console.error("Erreur de restauration des données :", e);
     }
   }
 
-  /** Remise à zéro complète avec confirmation */
+  /** Remise à zéro complète après confirmation utilisateur */
   resetAll() {
-    const confirmation = confirm("⚠️ Voulez-vous vraiment TOUT effacer ?\nCette action supprimera l'intégralité de votre patch actuel.");
+    const confirmation = confirm("⚠️ Voulez-vous vraiment TOUT effacer ?\nCette action supprimera votre patch et votre historique d'annulation.");
     if (confirmation) {
       localStorage.removeItem('patchapapa_state');
       location.reload(); 
     }
   }
 
-  /** Sauvegarde l'état courant (canaux, compteurs, HTML, formulaire) pour undo */
+  // --- LOGIQUE DE PATCH & UNDO ---
+
+  /** Sauvegarde l'état courant avant une action pour permettre l'annulation */
   saveState() {
     const occClone = new Map();
     for (const [u, set] of this.occupiedChannels) occClone.set(u, new Set(set));
@@ -140,7 +159,7 @@ export class DMXPatcher {
     this.updateUndoButton();
   }
 
-  /** Annule le dernier patch et restaure l'état */
+  /** Annule le dernier patch et restaure l'état précédent */
   undo() {
     if (this.history.length === 0) {
       showToast('Rien à annuler', 2000);
@@ -153,7 +172,7 @@ export class DMXPatcher {
 
     document.getElementById('output').innerHTML = this.outputHTML;
     
-    // Mise à jour du stockage après annulation
+    // Sauvegarde du nouvel état (historique réduit) après l'annulation
     this.persistData();
 
     this.univ.value = universeValue;
@@ -163,32 +182,26 @@ export class DMXPatcher {
     this.updateUndoButton();
   }
 
-  /** Active/désactive le bouton Undo */
   updateUndoButton() {
     if (this.history.length > 0) this.undoBtn.removeAttribute('disabled');
     else this.undoBtn.setAttribute('disabled', 'true');
   }
 
-  /** Met à jour la première adresse libre */
   updateStartAddress() {
     const u = parseInt(this.univ.value, 10) || 1;
     const nextFreeAddress = this.findFirstFree(u);
-
-    if (this.addr) {
-      this.addr.value = nextFreeAddress;
-    }
+    if (this.addr) this.addr.value = nextFreeAddress;
   }
 
-  /** Renvoie le premier canal libre dans l'univers */
   findFirstFree(u) {
     const set = this.occupiedChannels.get(u) || new Set();
     for(let i = 1; i <= 512; i++) if(!set.has(i)) return i;
     return 1;
   }
 
-  /** Logique de patch DMX avec gestion conflits */
+  /** Logique de calcul du patch DMX */
   patchProjectors() {
-    this.saveState();
+    this.saveState(); // On enregistre avant de modifier
     document.getElementById('projector-suggestions')?.classList.add('hidden');
 
     const name = (this.pName.value.trim() || 'PROJO').toUpperCase();
@@ -207,7 +220,7 @@ export class DMXPatcher {
     }
 
     if(conflictIdx >= 0){
-      const ok = window.confirm(`Conflit sur projecteur ${conflictIdx+1}. OK pour décaler ?`);
+      const ok = window.confirm(`Conflit sur projecteur ${conflictIdx+1}. OK pour décaler sur les prochaines adresses libres ?`);
       if(!ok) return;
     }
 
@@ -215,6 +228,7 @@ export class DMXPatcher {
     this.projectorCounters[name] = this.projectorCounters[name] || 0;
     const batchEnd = conflictIdx >= 0 ? conflictIdx : pc;
 
+    // Patch des premiers projecteurs (sans conflit)
     for(let i = 0; i < batchEnd; i++){
       this.projectorCounters[name]++;
       const num = this.projectorCounters[name];
@@ -228,9 +242,10 @@ export class DMXPatcher {
       currentA += cc;
     }
 
+    // Gestion du décalage si conflit
     if(conflictIdx >= 0){
       const findNext = () => { 
-          let sU = currentU, sA = 1; 
+          let sU = currentU, sA = currentA; 
           while(true){ 
               if(this.areChannelsAvailable(sU, sA, cc)) return {sU, x: sA}; 
               sA++; 
@@ -256,7 +271,7 @@ export class DMXPatcher {
     this.outputHTML = html;
     document.getElementById('output').innerHTML = html;
     
-    // SAUVEGARDE LOCALE
+    // SAUVEGARDE LOCALE (Etat + Historique)
     this.persistData();
 
     showToast('Patch réalisé avec succès !', 2500);
@@ -278,7 +293,7 @@ export class DMXPatcher {
     for(let i = 0; i < n; i++) set.add(s+i); 
   }
 
-  // --- LOGIQUE AUTOCOMPLETE (Inchangée) ---
+  // --- LOGIQUE AUTOCOMPLETE (Conservée à l'identique) ---
 
   onProjectorInput() {
     const term = this.pName.value.trim().toLowerCase();
@@ -420,5 +435,5 @@ export class DMXPatcher {
   }
 }
 
-// Initialisation au chargement
+// Initialisation au chargement de la fenêtre
 window.addEventListener('load', () => new DMXPatcher());
