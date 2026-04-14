@@ -308,16 +308,9 @@ export class DMXPatcher {
       return;
     }
 
-    // --- NOUVELLE LOGIQUE DE FILTRAGE MULTI-MOTS ---
-    // On sépare la saisie en plusieurs mots (ex: "mar aur" -> ["mar", "aur"])
-    const searchWords = term.split(/\s+/); 
-
-    const results = projectorLibrary.filter(p => {
-      const fullName = `${p.brand} ${p.model}`.toLowerCase();
-      // On vérifie que CHAQUE mot de la recherche est présent dans le nom complet
-      return searchWords.every(word => fullName.includes(word));
-    });
-    // ----------------------------------------------
+    const startsWithFilter = projectorLibrary.filter(p => p.model.toLowerCase().startsWith(term) || p.brand.toLowerCase().startsWith(term));
+    const includesFilter = projectorLibrary.filter(p => !startsWithFilter.includes(p) && (p.model.toLowerCase().includes(term) || p.brand.toLowerCase().includes(term)));
+    const results = [...startsWithFilter, ...includesFilter];
 
     if (results.length === 0) {
       modeGroup.classList.add('hidden');
@@ -325,24 +318,24 @@ export class DMXPatcher {
       return;
     }
 
-    // Affichage des résultats (limité aux 10 premiers pour rester fluide)
-    results.slice(0, 10).forEach(result => {
+    results.forEach(result => {
       const model = result.model;
       const brand = result.brand;
-      const fullName = `${brand} ${model}`;
-      
-      const li = document.createElement('li');
-      
-      // Optionnel : Surlignage des mots trouvés
-      let highlightedName = fullName;
-      searchWords.forEach(word => {
-        if(word.length > 0) {
-          const reg = new RegExp(`(${word})`, 'gi');
-          highlightedName = highlightedName.replace(reg, "<strong>$1</strong>");
-        }
-      });
+      let highlightedBrand = brand;
+      let highlightedModel = model;
 
-      li.innerHTML = highlightedName;
+      const startIndexBrand = brand.toLowerCase().indexOf(term);
+      if (startIndexBrand !== -1) {
+        highlightedBrand = `${brand.slice(0, startIndexBrand)}<strong>${brand.slice(startIndexBrand, startIndexBrand + term.length)}</strong>${brand.slice(startIndexBrand + term.length)}`;
+      }
+
+      const startIndexModel = model.toLowerCase().indexOf(term);
+      if (startIndexModel !== -1) {
+        highlightedModel = `${model.slice(0, startIndexModel)}<strong>${model.slice(startIndexModel, startIndexModel + term.length)}</strong>${model.slice(startIndexModel + term.length)}`;
+      }
+
+      const li = document.createElement('li');
+      li.innerHTML = `${highlightedBrand} ${highlightedModel}`;
       li.addEventListener('click', () => {
         this.pName.value = model;
         list.classList.add('hidden');
