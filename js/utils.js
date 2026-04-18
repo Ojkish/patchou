@@ -2,8 +2,6 @@
 
 /**
  * Lit et convertit la valeur d'un champ input numérique en entier.
- * @param {string} id - ID de l'élément <input>
- * @returns {number|null} - la valeur entière ou null si invalide
  */
 export function getValidInt(id) {
   const el = document.getElementById(id);
@@ -13,8 +11,7 @@ export function getValidInt(id) {
 }
 
 /**
- * Configure les contrôles de type "+" / "-" avec support tactile et accélération.
- * @param {string} selector - sélecteur CSS pour les boutons de contrôle (.number-control)
+ * Configure les contrôles de type "+" / "-" avec retour visuel et défilement calibré.
  */
 export function setupNumberControls(selector) {
   const buttons = document.querySelectorAll(selector);
@@ -22,7 +19,7 @@ export function setupNumberControls(selector) {
   buttons.forEach(btn => {
     let timer = null;
     let initialDelayTimer = null;
-    let currentInterval = 200; // Vitesse initiale en ms
+    let currentInterval = 250; // Vitesse de départ plus calme (250ms)
 
     const targetId = btn.dataset.target;
     const action = btn.dataset.action;
@@ -30,7 +27,7 @@ export function setupNumberControls(selector) {
 
     if (!target) return;
 
-    /** Exécute une seule modification de valeur */
+    /** Exécute une modification et produit un retour visuel */
     const adjust = () => {
       let v = parseInt(target.value, 10) || 0;
       const min = parseInt(target.getAttribute('min'), 10) || 1;
@@ -41,62 +38,65 @@ export function setupNumberControls(selector) {
       } else {
         v = v > min ? v - 1 : min;
       }
-
       target.value = v;
 
-      // Vibration haptique (si disponible)
-      if (navigator.vibrate) navigator.vibrate(10);
+      // --- RETOUR VISUEL (Alternative Haptique iPhone) ---
+      // On simule une pression physique sur le bouton
+      btn.style.transform = "scale(0.85)";
+      setTimeout(() => { btn.style.transform = "scale(1)"; }, 60);
 
-      // Déclenche l'événement 'input' pour mettre à jour le patch en temps réel
+      // Notification des changements
       target.dispatchEvent(new Event('input', { bubbles: true }));
-      
-      // Cas spécifique pour l'univers (compatibilité avec tes anciens scripts)
       if (targetId === 'universe') {
         target.dispatchEvent(new Event('change', { bubbles: true }));
       }
     };
 
-    /** Démarre la boucle d'accélération */
+    /** Gestion du défilement avec accélération progressive */
     const startEffect = (e) => {
-      // Empêche les comportements par défaut (zoom, menu contextuel sur mobile)
       if (e.type === 'touchstart') e.preventDefault();
       
-      adjust(); // Premier clic immédiat
+      adjust(); // Action immédiate au premier contact
 
       initialDelayTimer = setTimeout(() => {
         const loop = () => {
           adjust();
-          // Accélération : on réduit l'intervalle jusqu'à un minimum de 40ms
-          currentInterval = Math.max(40, currentInterval * 0.8);
+          // Accélération ralentie (0.9 au lieu de 0.8)
+          // Minimum bloqué à 70ms pour ne pas perdre le contrôle sur mobile
+          currentInterval = Math.max(70, currentInterval * 0.9);
           timer = setTimeout(loop, currentInterval);
         };
         loop();
-      }, 400); // Délai avant de commencer à "mouliner" (appui long)
+      }, 450); // Attend 450ms avant de commencer à défiler
     };
 
-    /** Arrête l'effet */
     const stopEffect = () => {
       clearTimeout(timer);
       clearTimeout(initialDelayTimer);
       timer = null;
       initialDelayTimer = null;
-      currentInterval = 200;
+      currentInterval = 250;
     };
 
-    // --- Listeners Souris ---
     btn.addEventListener('mousedown', startEffect);
-    
-    // --- Listeners Tactiles ---
     btn.addEventListener('touchstart', startEffect, { passive: false });
 
-    // --- Arrêt global ---
-    // On écoute sur window pour arrêter même si le doigt/souris glisse hors du bouton
     window.addEventListener('mouseup', stopEffect);
     window.addEventListener('touchend', stopEffect);
     window.addEventListener('touchcancel', stopEffect);
-    // Empêche le clic simple de re-déclencher une action si le mousedown a déjà fait le job
     btn.addEventListener('click', e => e.preventDefault());
   });
+}
+
+/**
+ * Applique un flash visuel temporaire à un élément (ex: bouton Patch ou nouvel item).
+ * @param {HTMLElement} el - L'élément à animer
+ * @param {string} className - La classe CSS d'animation (ex: 'btn-patch-active')
+ */
+export function flashElement(el, className, duration = 200) {
+  if (!el) return;
+  el.classList.add(className);
+  setTimeout(() => el.classList.remove(className), duration);
 }
 
 /**
@@ -108,7 +108,7 @@ export function getFromLocalStorage(key) {
   try {
     return JSON.parse(raw);
   } catch (e) {
-    console.warn(`Erreur de parsing JSON pour la clé ${key}:`, e);
+    console.warn(`Erreur de parsing JSON: ${key}`, e);
     return null;
   }
 }
@@ -120,7 +120,7 @@ export function saveToLocalStorage(key, value) {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch (e) {
-    console.warn(`Erreur de stockage localStorage pour la clé ${key}:`, e);
+    console.warn(`Erreur de stockage: ${key}`, e);
   }
 }
 
