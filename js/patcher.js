@@ -68,22 +68,25 @@ export class DMXPatcher {
 
     setupNumberControls('.number-control');
 
-    // --- SCROLL AUTOMATIQUE & SÉLECTION ---
+// --- SCROLL AUTOMATIQUE & SÉLECTION ---
     document.querySelectorAll('input, select').forEach(el => {
       el.addEventListener('focus', e => {
-        // Sélectionne le texte existant
+        // Sélectionne le texte existant pour effacer rapidement
         e.target.select();
         
-        // Scroll automatique pour rester visible au-dessus du clavier mobile
+        // Détermine la position de défilement
+        // Si c'est le champ Nom, on le colle en haut ('start')
+        // Sinon on le centre ('center')
+        const scrollPos = (e.target.id === 'projectorName') ? 'start' : 'center';
+
         setTimeout(() => {
           e.target.scrollIntoView({
             behavior: 'smooth',
-            block: 'center'
+            block: scrollPos
           });
-        }, 300); // Délai pour attendre la montée du clavier iOS
+        }, 300); // Délai pour laisser le clavier iOS monter
       });
     });
-
     this.pName.addEventListener('focus', () => this.onProjectorInput());
     this.pName.addEventListener('input', () => this.onProjectorInput());
     this.pName.addEventListener('keydown', e => this.onProjectorKeyDown(e));
