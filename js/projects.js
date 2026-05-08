@@ -27,20 +27,19 @@ askProjectName() {
   const cancel  = document.getElementById('modal-cancel');
 
   title.textContent = '💾 Sauvegarder le projet';
-  message.innerHTML = `
-    <input type="text" id="project-name-input" 
-      placeholder="Nom du projet (ex: Concert Nantes)"
-      style="width:100%; margin-top:10px;">
-  `;
+
+    message.innerHTML = ''; // on vide d'abord
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.id = 'project-name-input';
+  input.placeholder = 'Nom du projet (ex: Concert Nantes)';
+  input.style.cssText = 'width:100%; margin-top:10px;';
+  message.appendChild(input);
+  
   modal.classList.remove('hidden');
 
-setTimeout(() => {
-  const input = document.getElementById('project-name-input');
-  if (input) {
-    input.focus();
-    input.select();
-  }
-}, 100);
+input.focus();
+input.select();
 
   const onConfirm = () => {
     const name = document.getElementById('project-name-input')?.value.trim();
@@ -178,9 +177,15 @@ loadProject(name) {
     if (!raw) return showToast('Projet introuvable.', 2000);
     const proj = JSON.parse(raw);
     localStorage.setItem(this.storageKey, proj.state);
-    showToast(`✅ Projet "${name}" chargé !`, 2500);
+  showToast(`✅ Projet "${name}" chargé !`, 2500);
     document.getElementById('show-patch').click();
-  };
+    
+    // Recalcule la première adresse libre après que loadData() a fini
+    setTimeout(() => {
+      const univInput = document.getElementById('universe');
+      if (univInput) univInput.dispatchEvent(new Event('change'));
+    }, 100);
+    };
   const onCancel = () => cleanup();
 
   const cleanup = () => {
@@ -201,21 +206,22 @@ renameProject(oldName) {
   const confirm = document.getElementById('modal-confirm');
   const cancel  = document.getElementById('modal-cancel');
 
-  title.textContent = '✏️ Renommer le projet';
-  message.innerHTML = `
-    <input type="text" id="project-name-input"
-      value="${oldName}"
-      style="width:100%; margin-top:10px;">
-  `;
-  modal.classList.remove('hidden');
+title.textContent = '✏️ Renommer le projet';
 
-setTimeout(() => {
-  const input = document.getElementById('project-name-input');
-  if (input) {
-    input.focus();
-    input.select();
-  }
-}, 100);
+// Même approche que askProjectName — createElement au lieu de innerHTML
+message.innerHTML = '';
+const input = document.createElement('input');
+input.type = 'text';
+input.id = 'project-name-input';
+input.value = oldName;  // ← pré-remplit avec l'ancien nom
+input.style.cssText = 'width:100%; margin-top:10px;';
+message.appendChild(input);
+
+modal.classList.remove('hidden');
+
+// Focus synchrone — variable input bien définie cette fois
+input.focus();
+input.select();
 
   const onConfirm = () => {
     const newName = document.getElementById('project-name-input')?.value.trim();
