@@ -29,12 +29,12 @@ nav button {
 
 nav button:hover,
 nav button:focus {
-  background: rgb(187, 183, 183);
   opacity: 0.6;
 }
 
 nav button.active {
-  background: var(--secondary-color);
+  background: rgb(187, 183, 183);
+  opacity: 0.6;
 }
 
 /* Conteneur principal des sections */
