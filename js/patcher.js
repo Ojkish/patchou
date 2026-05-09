@@ -21,7 +21,7 @@ export class DMXPatcher {
 
   init() {
 
-        const setActiveNav = (activeId) => {
+    const setActiveNav = (activeId) => {
       ['show-patch', 'show-results', 'show-projects'].forEach(id => {
         document.getElementById(id).classList.toggle('active', id === activeId);
       });
@@ -51,24 +51,24 @@ export class DMXPatcher {
       document.getElementById('projects-section').classList.add('hidden');
     });
     
-let resultsInstance = null;
+    let resultsInstance = null;
 
-document.getElementById('show-results').addEventListener('click', () => {
-  setActiveNav('show-results');
-  document.getElementById('patch-section').classList.add('hidden');
-  document.getElementById('results-section').classList.remove('hidden');
-  document.getElementById('projects-section').classList.add('hidden');
-  
-  import('./results.js').then(m => {
-    if (!resultsInstance) {
-      resultsInstance = new m.DMXPatchResults();
-    } else {
-      resultsInstance.loadFromStorage();
-      resultsInstance.updateFilterUI();
-      resultsInstance.renderTable();
-    }
-  });
-});
+    document.getElementById('show-results').addEventListener('click', () => {
+      setActiveNav('show-results');
+      document.getElementById('patch-section').classList.add('hidden');
+      document.getElementById('results-section').classList.remove('hidden');
+      document.getElementById('projects-section').classList.add('hidden');
+      
+      import('./results.js').then(m => {
+        if (!resultsInstance) {
+          resultsInstance = new m.DMXPatchResults();
+        } else {
+          resultsInstance.loadFromStorage();
+          resultsInstance.updateFilterUI();
+          resultsInstance.renderTable();
+        }
+      });
+    });
 
     document.getElementById('show-projects').addEventListener('click', () => {
       setActiveNav('show-projects');
@@ -99,23 +99,23 @@ document.getElementById('show-results').addEventListener('click', () => {
 
     setupNumberControls('.number-control');
 
+    // Branche l'avertissement adresse sur les 4 champs concernés
+    ['address', 'universe', 'channelCount', 'projectorCount'].forEach(id => {
+      document.getElementById(id)?.addEventListener('input', () => this.updateAddressHint());
+      document.getElementById(id)?.addEventListener('change', () => this.updateAddressHint());
+    });
+
     // --- SCROLL AUTOMATIQUE & SÉLECTION ---
     document.querySelectorAll('input, select').forEach(el => {
       el.addEventListener('focus', e => {
-        // Sélectionne le texte existant pour effacer rapidement
         e.target.select();
-        
-        // COMPORTEMENT MOBILE :
-        // Le champ Nom remonte tout en haut (start) pour laisser la place aux suggestions dessous
-        // Les autres champs se centrent (center)
         const scrollPos = (e.target.id === 'projectorName') ? 'start' : 'center';
-
         setTimeout(() => {
           e.target.scrollIntoView({
             behavior: 'smooth',
             block: scrollPos
           });
-        }, 300); // Délai pour laisser le clavier iOS monter
+        }, 300);
       });
     });
 
@@ -123,7 +123,6 @@ document.getElementById('show-results').addEventListener('click', () => {
     this.pName.addEventListener('input', () => this.onProjectorInput());
     this.pName.addEventListener('keydown', e => this.onProjectorKeyDown(e));
     this.pName.addEventListener('blur', () => {
-      // Délai légèrement augmenté pour mobile (300ms) pour valider le clic sur suggestion
       setTimeout(() => document.getElementById('projector-suggestions')?.classList.add('hidden'), 300);
     });
 
@@ -299,9 +298,10 @@ document.getElementById('show-results').addEventListener('click', () => {
     this.persistData();
     showToast('Patch réalisé !', 2000);
     
-if(currentA > 512){ currentU++; currentA = 1; }
-this.univ.value = currentU;
-this.updateStartAddress();  }
+    if(currentA > 512){ currentU++; currentA = 1; }
+    this.univ.value = currentU;
+    this.updateStartAddress();
+  }
 
   persistData() {
     const state = {
@@ -385,6 +385,77 @@ this.updateStartAddress();  }
     let free = 1;
     for(let i=1; i<=512; i++) { if(!set.has(i)) { free = i; break; } }
     if (this.addr) this.addr.value = free;
+    this.updateAddressHint();
+  }
+
+  updateAddressHint() {
+    const hint = document.getElementById('address-hint');
+    if (!hint) return;
+
+    const u  = parseInt(this.univ.value, 10)  || 1;
+    const a  = parseInt(this.addr.value, 10)  || 1;
+    const cc = parseInt(this.cCount.value, 10) || 1;
+    const pc = parseInt(this.pCount.value, 10) || 1;
+
+    // Niveau 1 — conflit immédiat sur le 1er projo
+    if (!this.areChannelsAvailable(u, a, cc)) {
+      this.addr.className = 'address-conflict';
+      hint.className = 'conflict';
+      hint.textContent = '⚠️ Conflit immédiat';
+      return;
+    }
+
+    // Simule tous les projos pour détecter conflits et débordements
+    let tempU = u, tempA = a, conflictAt = -1;
+    const univCounts = {};
+
+    for (let i = 0; i < pc; i++) {
+      if (tempA + cc - 1 > 512) { tempU++; tempA = 1; }
+      if (!this.areChannelsAvailable(tempU, tempA, cc)) {
+        conflictAt = i + 1;
+        break;
+      }
+      univCounts[tempU] = (univCounts[tempU] || 0) + 1;
+      tempA += cc;
+    }
+
+    // Niveau 2 — conflit différé
+    if (conflictAt > 0) {
+      const ok = conflictAt - 1;
+      const ko = pc - ok;
+      this.addr.className = 'address-warning';
+      hint.className = 'warning';
+      hint.textContent = `⚡ ${ok} projo${ok > 1 ? 's' : ''} OK · ${ko} décalé${ko > 1 ? 's' : ''}`;
+      return;
+    }
+
+    // Calcul du max patchable depuis cette adresse sur l'univers courant
+    let maxProjos = 0;
+    let scanA = a;
+    while (scanA + cc - 1 <= 512 && this.areChannelsAvailable(u, scanA, cc)) {
+      maxProjos++;
+      scanA += cc;
+    }
+
+    // Construction du message — débordement ou état libre
+    const univKeys = Object.keys(univCounts).map(Number);
+    const hasOverflow = univKeys.length > 1;
+
+    if (hasOverflow) {
+      const parts = univKeys.map((uKey, idx) => {
+        const count = univCounts[uKey];
+        return idx === 0
+          ? `${count} projo${count > 1 ? 's' : ''} U${uKey}`
+          : `${count}×U${uKey}`;
+      });
+      this.addr.className = 'address-free';
+      hint.className = 'free';
+      hint.textContent = `↪️ ${parts.join(' · ')}`;
+    } else {
+      this.addr.className = 'address-free';
+      hint.className = 'free';
+      hint.textContent = `👍 ${pc}/${maxProjos} projo${maxProjos > 1 ? 's' : ''} patchables · U${u}`;
+    }
   }
 
   areChannelsAvailable(u, s, n){
