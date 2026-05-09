@@ -478,9 +478,13 @@ export class DMXPatcher {
       modeSelect.innerHTML = entry.modes.map(m => `<option value="${m.channels}">${m.name} (${m.channels}ch)</option>`).join('');
       modeGroup.classList.remove('hidden');
       if (preferredChannels) modeSelect.value = preferredChannels;
-      this.cCount.value = modeSelect.value;
-      modeSelect.onchange = () => { this.cCount.value = modeSelect.value; };
-    }
+    this.cCount.value = modeSelect.value;
+    this.updateAddressHint(); // ← AJOUT — mise à jour immédiate au chargement du projo
+
+modeSelect.onchange = () => { 
+  this.cCount.value = modeSelect.value;
+  this.updateAddressHint(); // ← AJOUT — mise à jour à chaque changement de mode
+};    }
   }
 
   onProjectorKeyDown(e) {
