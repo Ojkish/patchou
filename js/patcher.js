@@ -371,8 +371,8 @@ export class DMXPatcher {
       this.univ.value = universeValue;
       this.addr.value = addressValue;
       this.updateUndoButton();
-      showToast('Dernière action annulée', 2000);
-    }
+      this.updateAddressHint(); // ← AJOUT
+      showToast('Dernière action annulée', 2000);    }
   }
 
   updateUndoButton() {
