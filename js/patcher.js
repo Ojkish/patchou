@@ -369,10 +369,10 @@ export class DMXPatcher {
       if (outputElem) outputElem.innerHTML = this.outputHTML;
       this.persistData();
       this.univ.value = universeValue;
-      this.addr.value = addressValue;
+      this.addr.value = addressValue;  // ← restaure l'adresse AVANT le recalcul
       this.updateUndoButton();
-      this.updateAddressHint(); // ← AJOUT
-      showToast('Dernière action annulée', 2000);    }
+      this.updateAddressHint();        // ← recalcule le hint avec les bonnes valeurs
+      showToast('Dernière action annulée', 2000);     }
   }
 
   updateUndoButton() {
