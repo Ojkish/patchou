@@ -118,15 +118,6 @@ export const projectorLibrary = [
     ],
   },
   {
-    model: "MAC Ultra Performance",
-    brand: "Martin",
-    modes: [
-      { name: "Basic", channels: 22 },
-      { name: "Extended", channels: 26 },
-      { name: "Pixel", channels: 74 },
-    ],
-  },
-  {
     model: "Atomic 3000 LED",
     brand: "Martin",
     modes: [
@@ -254,7 +245,7 @@ export const projectorLibrary = [
     ],
   },
   {
-    model: "Pointe",
+    model: "Robin Pointe",
     brand: "Robe",
     modes: [
       { name: "Mode 1", channels: 24 },
@@ -347,14 +338,6 @@ export const projectorLibrary = [
       { name: "18-ch", channels: 18 },
       { name: "26-ch", channels: 26 },
       { name: "55-ch", channels: 55 },
-    ],
-  },
-  {
-    model: "Robin Pointe",
-    brand: "Robe",
-    modes: [
-      { name: "Mode 1", channels: 16 },
-      { name: "Mode 2", channels: 24 },
     ],
   },
   {
@@ -577,17 +560,8 @@ export const projectorLibrary = [
   },
 
   {
-    model: "Maverick Force X Profile",
-    brand: "Chauvet",
-    modes: [
-      { name: "37 channels", channels: 37 },
-      { name: "47 channels", channels: 47 },
-    ],
-  },
-
-  {
     model: "Maverick Storm 3 Profile",
-    brand: "Chauvet Professional",
+    brand: "Chauvet",
     modes: [
       { name: "34 ch", channels: 34 },
       { name: "50 ch", channels: 50 },
@@ -596,13 +570,13 @@ export const projectorLibrary = [
 
   {
     model: "Maverick Storm 1 Flex",
-    brand: "Chauvet Professional",
+    brand: "Chauvet",
     modes: [{ name: "33 ch", channels: 33 }],
   },
 
   {
     model: "Maverick Force X Profile",
-    brand: "Chauvet Professional",
+    brand: "Chauvet",
     modes: [
       { name: "31 ch", channels: 31 },
       { name: "47 ch", channels: 47 },
@@ -611,7 +585,7 @@ export const projectorLibrary = [
 
   {
     model: "Maverick Force X Spot",
-    brand: "Chauvet Professional",
+    brand: "Chauvet",
     modes: [
       { name: "22 ch", channels: 22 },
       { name: "29 ch", channels: 29 },
@@ -620,7 +594,7 @@ export const projectorLibrary = [
 
   {
     model: "Rogue Outcast 3 Spot",
-    brand: "Chauvet Professional",
+    brand: "Chauvet",
     modes: [
       { name: "20 ch", channels: 20 },
       { name: "25 ch", channels: 25 },
@@ -629,7 +603,7 @@ export const projectorLibrary = [
 
   {
     model: "Maverick Silens 2X Profile",
-    brand: "Chauvet Professional",
+    brand: "Chauvet",
     modes: [
       { name: "32 ch", channels: 32 },
       { name: "33 ch", channels: 33 },
@@ -640,7 +614,7 @@ export const projectorLibrary = [
 
   {
     model: "COLORado Solo Edge 3",
-    brand: "Chauvet Professional",
+    brand: "Chauvet",
     modes: [
       { name: "1 Cell: CCT", channels: 6 },
       { name: "1 Cell: HSV", channels: 6 },
@@ -679,7 +653,7 @@ export const projectorLibrary = [
 
   {
     model: "Ovation CYC 3 FC",
-    brand: "Chauvet Professional",
+    brand: "Chauvet",
     modes: [
       { name: "1Ch", channels: 1 },
       { name: "3Ch", channels: 3 },
@@ -897,14 +871,6 @@ export const projectorLibrary = [
   // —————————————————————————————————————————————————————
   // Vari-Lite
   // —————————————————————————————————————————————————————
-  {
-    model: "VL4000 Spot",
-    brand: "Vari-Lite",
-    modes: [
-      { name: "Basic", channels: 14 },
-      { name: "Extended", channels: 28 },
-    ],
-  },
   {
     model: "VL4000 Beam",
     brand: "Vari-Lite",
@@ -1244,12 +1210,21 @@ export const projectorLibrary = [
     ],
   },
 
+  {
+  model: "P15 Profile",
+  brand: "JB Lighting",
+  modes: [
+    { name: "M1", channels: 44 },
+    { name: "M2", channels: 64 },
+  ],
+},
+
   // —————————————————————————————————————————————————————
   // Clay Paky
   // —————————————————————————————————————————————————————
   {
     model: "Sharpy",
-    brand: "CLAY PAKY",
+    brand: "Clay Paky",
     modes: [
       { name: "Standard", channels: 16 },
       { name: "Vector", channels: 20 },
@@ -1427,6 +1402,13 @@ export const projectorLibrary = [
       { name: "White", channels: 43 },
     ],
   },
+    {
+    model: "Arolla Aqua Wash HC",
+    brand: "Clay Paky",
+    modes: [
+      { name: "Standard", channels: 30 }
+    ]
+}
 ];
 
 /**
