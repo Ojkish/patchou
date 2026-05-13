@@ -1,6 +1,7 @@
 /* components.css */
 
 
+
 /* Désactive la sélection de texte par défaut pour éviter les curseurs bleus lors des clics répétitifs */
 body {
   -webkit-user-select: none;
