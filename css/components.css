@@ -439,12 +439,6 @@ input.address-free {
   color: #2a2e8a;
 }
 
-input.address-warning {
-  background: #fff3cd;
-  border: 2px solid #c47a00;
-  color: #7a4a00;
-}
-
 input.address-conflict {
   background: #ffe0e0;
   border: 2px solid #bb4444;
@@ -458,8 +452,11 @@ input.address-conflict {
   padding-left: 4px;
   margin-top: 6px;
   min-height: 22px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 #address-hint.free     { color: #2a2e8a; }
-#address-hint.warning  { color: #7a4a00; }
 #address-hint.conflict { color: #7a1a1a; }
