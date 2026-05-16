@@ -388,7 +388,7 @@ export class DMXPatcher {
     this.updateAddressHint();
   }
 
-  updateAddressHint() {
+updateAddressHint() {
   const hint = document.getElementById('address-hint');
   if (!hint) return;
 
@@ -397,25 +397,64 @@ export class DMXPatcher {
   const cc = parseInt(this.cCount.value, 10) || 1;
   const pc = parseInt(this.pCount.value, 10) || 1;
 
-  const badge = (text) =>
-    `<span style="background:#555;color:#fff;font-size:13px;padding:3px 10px;border-radius:20px;display:inline-block;">${text}</span>`;
+  const badge = (text, color = '#555') =>
+    `<span style="background:${color};color:#fff;font-size:13px;padding:3px 10px;border-radius:20px;display:inline-block;">${text}</span>`;
   const dot = `<span style="color:#888;margin:0 2px;">·</span>`;
 
-  // Seul cas bloquant — conflit immédiat
-  if (!this.areChannelsAvailable(u, a, cc)) {
-    this.addr.className = 'address-conflict';
+  // Reset visuel des deux champs
+  this.univ.className = '';
+  this.addr.className = '';
+  hint.className = '';
+  hint.innerHTML = '';
+
+  const univSet = this.occupiedChannels.get(u) || new Set();
+
+  // CAS 1 — Univers saturé (512/512)
+  if (univSet.size >= 512) {
+    this.univ.className = 'universe-conflict';
     hint.className = 'conflict';
-    hint.innerHTML = `<span style="background:#bb4444;color:#fff;font-size:13px;padding:3px 10px;border-radius:20px;">⚠️ Adresse occupée</span>`;
+    hint.innerHTML = badge(`⚠️ Univers saturé — 512/512 canaux utilisés`, '#bb4444');
     return;
   }
 
-  // Simulation du patch pour compter par univers
+  // CAS 2 — Plus assez de place pour 1 projo dans cet univers
+  let hasRoom = false;
+  for (let i = 1; i <= 512 - cc + 1; i++) {
+    if (this.areChannelsAvailable(u, i, cc)) { hasRoom = true; break; }
+  }
+  if (!hasRoom) {
+    // Calcul des canaux libres restants
+    let freeCount = 0;
+    for (let i = 1; i <= 512; i++) { if (!univSet.has(i)) freeCount++; }
+    this.univ.className = 'universe-conflict';
+    hint.className = 'conflict';
+    hint.innerHTML = badge(`⚠️ Plus assez de place — ${freeCount} canaux libres, ${cc} requis`, '#bb4444');
+    return;
+  }
+
+  // CAS 3 — Débordement fin d'univers
+  if (a + cc - 1 > 512) {
+    const available = 512 - a + 1;
+    this.addr.className = 'address-conflict';
+    hint.className = 'conflict';
+    hint.innerHTML = badge(`⚠️ Dépasse la fin de U${u} — ${available} canal${available > 1 ? 'aux' : ''} disponible${available > 1 ? 's' : ''}, ${cc} requis`, '#bb4444');
+    return;
+  }
+
+  // CAS 4 — Adresse déjà prise
+  if (!this.areChannelsAvailable(u, a, cc)) {
+    this.addr.className = 'address-conflict';
+    hint.className = 'conflict';
+    hint.innerHTML = badge('⚠️ Adresse déjà prise', '#bb4444');
+    return;
+  }
+
+  // CAS 5 — Tout OK — simulation du patch
   let tempU = u, tempA = a;
   const univCounts = {};
 
   for (let i = 0; i < pc; i++) {
     if (tempA + cc - 1 > 512) { tempU++; tempA = 1; }
-    // Si conflit différé — on saute à la prochaine adresse libre
     while (!this.areChannelsAvailable(tempU, tempA, cc)) {
       tempA++;
       if (tempA > 512 - cc + 1) { tempU++; tempA = 1; }
@@ -424,19 +463,18 @@ export class DMXPatcher {
     tempA += cc;
   }
 
-  // Affichage — toujours positif
   const univKeys = Object.keys(univCounts).map(Number);
-  const parts = univKeys.map(uKey => {
-    const count = univCounts[uKey];
-    return `${count}× ${badge('U' + uKey)}`;
-  });
+  const parts = univKeys.map(uKey =>
+    `${univCounts[uKey]}× ${badge('U' + uKey)}`
+  );
 
   this.addr.className = 'address-free';
+  this.univ.className = '';
   hint.className = 'free';
   hint.innerHTML = `→ ${parts.join(` ${dot} `)}`;
 }
 
-  areChannelsAvailable(u, s, n){
+areChannelsAvailable(u, s, n){
     const set = this.occupiedChannels.get(u) || new Set();
     for(let i=0; i<n; i++) if(set.has(s+i)) return false;
     return true;
