@@ -1101,6 +1101,16 @@ export const projectorLibrary = [
       { name: "Extended", channels: 62 },
     ],
   },
+  
+    {
+    model: "WildSun-K25",
+    brand: "Ayrton",
+    modes: [
+      { name: "Standard", channels: 14 },
+      { name: "Basic", channels: 11 },
+      { name: "Extended", channels: 21 },
+    ],
+  },
 
   // —————————————————————————————————————————————————————
   // Starway
@@ -1210,12 +1220,31 @@ export const projectorLibrary = [
     ],
   },
 
+    {
+    model: "P18 MKII Wash",
+    brand: "JB Lighting",
+    modes: [
+      { name: "M1", channels: 36 },
+      { name: "M2", channels: 54 },
+    ],
+  },
+
+  
   {
   model: "P15 Profile",
   brand: "JB Lighting",
   modes: [
     { name: "M1", channels: 44 },
     { name: "M2", channels: 64 },
+  ],
+},
+
+  {
+  model: "P15 Wash",
+  brand: "JB Lighting",
+  modes: [
+    { name: "M1", channels: 35 },
+    { name: "M2", channels: 51 },
   ],
 },
 
@@ -1227,6 +1256,43 @@ export const projectorLibrary = [
     { name: "M2", channels: 62 },
   ],
 },
+
+{
+  model: "P10 Profile",
+  brand: "JB Lighting",
+  modes: [
+    { name: "M1", channels: 40 },
+    { name: "M2", channels: 60 },
+  ],
+},
+
+{
+  model: "P10 Wash",
+  brand: "JB Lighting",
+  modes: [
+    { name: "M1", channels: 37 },
+    { name: "M2", channels: 56 },
+  ],
+},
+
+{
+  model: "P9 Spot",
+  brand: "JB Lighting",
+  modes: [
+    { name: "M1", channels: 29 },
+    { name: "M2", channels: 39 },
+  ],
+},
+
+{
+  model: "P5 Spot",
+  brand: "JB Lighting",
+  modes: [
+    { name: "M1", channels: 25 },
+    { name: "M2", channels: 32 },
+  ],
+},
+
   // —————————————————————————————————————————————————————
   // Clay Paky
   // —————————————————————————————————————————————————————
@@ -1355,16 +1421,6 @@ export const projectorLibrary = [
       { name: "Shapes", channels: 35 },
       { name: "Pixel RGB", channels: 111 },
       { name: "Pixel RGBW", channels: 148 },
-    ],
-  },
-
-  {
-    model: "WildSun-K25",
-    brand: "Ayrton",
-    modes: [
-      { name: "Standard", channels: 14 },
-      { name: "Basic", channels: 11 },
-      { name: "Extended", channels: 21 },
     ],
   },
 
